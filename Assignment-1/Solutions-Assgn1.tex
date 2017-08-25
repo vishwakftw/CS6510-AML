@@ -212,4 +212,84 @@ Split & Inf. Gain \\
 From this, it is evident that splitting at \textbf{Capacity} gives us better information gain.
 \end{flushleft}
 \subsection*{Part b}
+\begin{flushleft}
+Since we are taking into account binary splitting, below listed are the possible choices of splits:
+\begin{enumerate}
+\item \texttt{Price}(6: Y, 5: N) \(\rightarrow\) \texttt{Low}(2: Y, 2: N) and \texttt{Medium | High}(4: Y, 3: N) 
+\item \texttt{Price}(6: Y, 5: N) \(\rightarrow\) \texttt{Medium}(2: Y, 2: N) and \texttt{High | Low}(4: Y, 3: N)
+\item \texttt{Price}(6: Y, 5: N) \(\rightarrow\) \texttt{High}(2: Y, 1: N) and \texttt{Low | Medium}(4: Y, 4: N)
+\item \texttt{Maintenance}(6: Y, 5: N) \(\rightarrow\) \texttt{Low}(2: Y, 0: N) and \texttt{Medium | High}(4: Y, 5: N)
+\item \texttt{Maintenance}(6: Y, 5: N) \(\rightarrow\) \texttt{Medium}(2: Y, 2: N) and \texttt{High | Low}(4: Y, 3: N)
+\item \texttt{Maintenance}(6: Y, 5: N) \(\rightarrow\) \texttt{High}(2: Y, 3: N) and \texttt{Low | Medium}(4: Y, 2: N)
+\item \texttt{Capacity}(6: Y, 5: N) \(\rightarrow\) \texttt{2}(1: Y, 2: N) and \texttt{4 | 5}(5: Y, 3: N)
+\item \texttt{Capacity}(6: Y, 5: N) \(\rightarrow\) \texttt{4}(3: Y, 3: N) and \texttt{5 | 2}(3: Y, 2: N)
+\item \texttt{Capacity}(6: Y, 5: N) \(\rightarrow\) \texttt{5}(2: Y, 0: N) and \texttt{2 | 4}(4: Y, 5: N)
+\item \texttt{Airbag}(6: Y, 5: N) \(\rightarrow\) \texttt{Yes}(3: Y, 3: N) and \texttt{No}(3: Y, 2: N)
+\end{enumerate}
+
+Impurities for 1, 2 and 5 will be same due to same distribution of the labels. Similarly impurities for 4 and 9 will be same, and it is the same case for 8 and 10.
+Calculating the impurity for 1 (and 2, 5):
+\begin{gather*}
+\text{Imp}_{1} = \left(\frac{n_{\text{L}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L}}^{2}\right) + \frac{n_{\text{M or H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{M or H}}^{2}\right)\right) \\
+\text{Imp}_{1} = \left(\frac{4}{11} \left(1 - \frac{1}{4} - \frac{1}{4}\right) + \frac{7}{11} \left(1 - \frac{16}{49} - \frac{9}{49}\right)\right) \\
+\text{Imp}_{1} \approx \mathbf{0 4935}
+\end{gather*}
+
+Calculating the impurity for 3:
+\begin{gather*}
+\text{Imp}_{3} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2})\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L or M}}^{2}\right)\right) \\
+\text{Imp}_{3} = \left(\frac{3}{11} \left(1 - \frac{4}{9} - \frac{1}{9}\right) + \frac{8}{11} \left(1 - \frac{1}{4} - \frac{1}{4}\right)\right) \\
+\text{Imp}_{3} \approx \mathbf{0.4849} 
+\end{gather*}
+
+Calculating the impurity for 4 (and 9):
+\begin{gather*}
+\text{Imp}_{4} = \left(\frac{n_{\text{L}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L}}^{2})\right) + \frac{n_{\text{M or H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{M or H}}^{2}\right)\right) \\
+\text{Imp}_{4} = \left(\frac{2}{11} \left(1 - 1 - 0\right) + \frac{9}{11} \left(1 - \frac{16}{81} - \frac{25}{81}\right)\right) \\
+\text{Imp}_{4} \approx \mathbf{0.4040} 
+\end{gather*}
+
+Calculating the impurity for 6:
+\begin{gather*}
+\text{Imp}_{6} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2})\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{Lor M}}^{2}\right)\right) \\
+\text{Imp}_{6} = \left(\frac{5}{11} \left(1 - \frac{4}{25} - \frac{9}{25}\right) + \frac{6}{11} \left(1 - \frac{4}{9} - \frac{1}{9}\right)\right) \\
+\text{Imp}_{6} \approx \mathbf{0.4606} 
+\end{gather*}
+
+Calculating the impurity for 7:
+\begin{gather*}
+\text{Imp}_{7} = \left(\frac{n_{\text{2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{2}}^{2})\right) + \frac{n_{\text{4 or 5}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4 or 5}}^{2}\right)\right) \\
+\text{Imp}_{7} = \left(\frac{3}{11} \left(1 - \frac{1}{9} - \frac{4}{9}\right) + \frac{8}{11} \left(1 - \frac{25}{64} - \frac{9}{64}\right)\right) \\
+\text{Imp}_{7} \approx \mathbf{0.4621} 
+\end{gather*}
+
+Calculating the impurity for 8 (and 10):
+\begin{gather*}
+\text{Imp}_{8} = \left(\frac{n_{\text{4}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4}}^{2})\right) + \frac{n_{\text{5 or 2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{5 or 2}}^{2}\right)\right) \\
+\text{Imp}_{8} = \left(\frac{6}{11} \left(1 - \frac{1}{4} - \frac{1}{4}\right) + \frac{5}{11} \left(1 - \frac{9}{25} - \frac{4}{25}\right)\right) \\
+\text{Imp}_{8} \approx \mathbf{0.4909} 
+\end{gather*}
+
+Impurity at the root for any split:  \(\text{Imp}_{\text{root}} = \displaystyle 1 - \frac{36}{121} - \frac{25}{121} = \mathbf{0.4957}\).
+Information gain table below:
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Split number & Inf. gain & Split number & Inf. gain \\
+\hline
+1 & 0.0024 & 6 & 0.0353 \\
+\hline
+2 & 0.0024 & 7 & 0.0338 \\
+\hline
+3 & 0.0110 & 8 & 0.0050 \\
+\hline
+4 & 0.0918 & 9 & 0.0918 \\
+\hline
+5 & 0.0024 & 10 & 0.0050 \\
+\hline
+\end{tabular}
+\end{center}
+
+Highest information gain occurs for splits \textbf{4} and \textbf{9}. 
+\end{flushleft}
 \end{document}
