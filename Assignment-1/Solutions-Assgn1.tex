@@ -88,4 +88,67 @@ Recall that if \(M\) is singular, then \(-1\) is an eigenvalue of \(\mathbf{u} \
 
 Resuming from where we left off: consider \(\mathbf{x} = \mathbf{u}\). \(\mathbf{u} - \mathbf{u} = 0 \text{ (since }\mathbf{v}^{T}\mathbf{u} = -1 \text{)} \).
 \end{flushleft}
+
+\section*{Question 3}
+\subsection*{Part a}
+\begin{flushleft}
+\begin{equation*}
+A = \begin{bmatrix} 
+-2 & 2 \\
+-6 & 5
+\end{bmatrix}
+\end{equation*}
+
+The eigenvalues of \(A\) are given by the roots to the equation \(\text{det}(A - \lambda I) = 0\). We get: \(\lambda^2 - 3\lambda + 2 = 0 \implies \lambda = 1, 2\). The eigenvectors are solutions to the equation:
+\begin{equation*}
+A \mathbf{x} = \lambda_{i} \mathbf{x} 
+\end{equation*}
+
+For \(\lambda = 1\):
+\begin{gather*}
+A \mathbf{x} = \mathbf{x} \implies \begin{bmatrix} -2 & 2 \\ -6 & 5 \end{bmatrix} \begin{bmatrix} a \\ b \end{bmatrix} = \begin{bmatrix} a \\ b \end{bmatrix} \\
+\mathbf{x} = a \begin{bmatrix} 1 \\ \frac{3}{2} \end{bmatrix} \quad \forall a
+\end{gather*}
+
+For \(\lambda = 2\):
+\begin{gather*}
+A \mathbf{x} = 2\mathbf{x} \implies \begin{bmatrix} -2 & 2 \\ -6 & 5 \end{bmatrix} \begin{bmatrix} a \\ b \end{bmatrix} = \begin{bmatrix} 2a \\ 2b \end{bmatrix} \\
+\mathbf{x} = a \begin{bmatrix} 1 \\ 2 \end{bmatrix} \quad \forall a
+\end{gather*}
+\end{flushleft}
+
+\subsection*{Part b}
+\begin{flushleft}
+Let \(U = \begin{bmatrix} u_{1} & u_{2} \\ u_{3} & u_{4} \end{bmatrix}\).
+Solving the system:
+\begin{gather*}
+AU = U\Lambda \\
+\implies u_{3} = 3\frac{u_{1}}{2} \text{ and } u_{4} = 2u_{2} \\
+\end{gather*}
+
+\(U\) is the matrix of the eigenvectors of \(A\). For simplicity, consider: \(u_{1} = 2\gamma, u_{2} = \zeta \implies u_{3} = 3\gamma, u_{4} = 2\zeta\). Hence:
+\begin{equation*}
+U = \begin{bmatrix}
+2\gamma & \zeta \\ 3\gamma & 2\zeta 
+\end{bmatrix}
+\end{equation*}
+\end{flushleft}
+
+\subsection*{Part c}
+\begin{flushleft}
+For an invertible \(2 \times 2\) matrix \(A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}\), the inverse is:
+\begin{equation*}
+A^{-1} = \frac{1}{ad - bc} \begin{bmatrix} d & -b \\ -c & a \end{bmatrix} 
+\end{equation*}
+
+This can be found using the transpose of the co-factor matrix (adjoint). In our case:
+\begin{gather*}
+U^{-1} = \frac{1}{\gamma \zeta} \begin{bmatrix} \zeta & -\zeta \\ -3\gamma & 2\gamma \end{bmatrix} \\
+U\Lambda U^{-1} = \begin{bmatrix} 2\gamma & 2\zeta \\ 3\gamma & 4\zeta \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 2 \end{bmatrix} \begin{bmatrix} 2\zeta & -\zeta \\ -3\gamma & 2\gamma \end{bmatrix} \frac{1}{\gamma \zeta}\\
+\implies U\Lambda U^{-1} = \begin{bmatrix} 2\gamma & 2\zeta \\ 3\gamma & 4 \zeta \end{bmatrix} \begin{bmatrix} 2\zeta & -\zeta \\ -3\gamma & 2\gamma \end{bmatrix} \frac{1}{\gamma \zeta} = \frac{1}{\gamma \zeta} \begin{bmatrix} -2\gamma \zeta & 2\gamma \zeta \\ -6\gamma \zeta & 5\gamma\zeta\end{bmatrix} \\
+\implies U\Lambda U^{-1} = \begin{bmatrix} -2 & 2 \\ -6 & 5 \end{bmatrix} = A
+\end{gather*}
+
+Verified. 
+\end{flushleft}
 \end{document}
