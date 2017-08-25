@@ -53,7 +53,7 @@ A set \(S\) is a vector space if the following conditions hold:
 \(\nexists u, v \in S = \emptyset\), hence the first condition holds [\texttt{False} \(\implies\) \texttt{True} is \texttt{True}]. Similarly, \(\nexists u \in S = \emptyset\), hence the second condition holds for the same reason above. Hence the empty set is a vector space.
 \end{flushleft}
 
-\subsection*{Part b}
+\subsection*{Part b and c}
 \begin{flushleft}
 Let \(M^{-1}\) be of the form: \(I + \alpha(\mathbf{u} \mathbf{v}^{T})\). We know that: \(M M^{-1} = I\). Applying this we get:
 \begin{gather*}
@@ -65,5 +65,27 @@ M  M^{-1} = I \\
 \end{gather*}
 
 Since there is an \(\alpha\), we can tell that our assumption is true, and hence the inverse of the matrix \(M\) is of the form \(I + \alpha(\mathbf{u}\mathbf{v}^{T})\). 
+\end{flushleft}
+
+\subsection*{Part d and e}
+\begin{flushleft}
+If \(M\) is singular: then \(\text{det}M = 0\). We know that the eigenvalues of \(M = I + \mathbf{u}\mathbf{v}^{T}\) are of the form: \(1 + \lambda_{i}\), where \(\lambda_{i}\)s are the eigenvalues of \(\mathbf{u}\mathbf{v}^{T}\). We also know that the determinant of the matrix is the product of its eigenvalues.
+\begin{gather*}
+\text{det}M = 0 \implies \displaystyle \prod_{i=1}^{n} (1 + \lambda_{i}) = 0 \\
+\implies \exists \lambda_{k} \text{ such that }(1 + \lambda_{k}) = 0
+\end{gather*}
+
+This means that at least one of the eigenvalues of \(\mathbf{u}\mathbf{v}^{T}\) is exactly \(-1\). From the expression for \(\alpha\), we know that this definitely happens when \(\mathbf{v}^{T} \mathbf{u} = -1\), in which case, \(\alpha\) is undefined. 
+\(\newline\)
+
+The Null space of \(M\) is defined as: \(M \mathbf{x} = \mathbf{0}\). This means that:
+\begin{gather*}
+(I + \mathbf{u}\mathbf{v}^{T}) \mathbf{x} = \mathbf{0} \\
+\mathbf{x} + \mathbf{u}\mathbf{v}^{T} \mathbf{x} = \mathbf{0} 
+\end{gather*}
+
+Recall that if \(M\) is singular, then \(-1\) is an eigenvalue of \(\mathbf{u} \mathbf{v}^{T}\) and hence: \(\mathbf{u}\mathbf{v}^{T}\mathbf{x} = -\mathbf{x}\). 
+
+Resuming from where we left off: consider \(\mathbf{x} = \mathbf{u}\). \(\mathbf{u} - \mathbf{u} = 0 \text{ (since }\mathbf{v}^{T}\mathbf{u} = -1 \text{)} \).
 \end{flushleft}
 \end{document}
