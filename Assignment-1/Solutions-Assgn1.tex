@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 
@@ -151,4 +151,65 @@ U\Lambda U^{-1} = \begin{bmatrix} 2\gamma & 2\zeta \\ 3\gamma & 4\zeta \end{bmat
 
 Verified. 
 \end{flushleft}
+
+\section*{Question 5}
+\subsection*{Part a}
+\begin{flushleft}
+Since we want multi-way splits, we are taking \texttt{Airbag} into account. We find the best among \texttt{Price}, \texttt{Maintenance} and \texttt{Capacity}. For this we first calculate the impurity after splitting and then we calculate the information gain.
+\(\newline\)
+
+For \texttt{Price}, the split gives: 
+\begin{equation*}
+\boxed{\text{Price (6: Y, 5: N)}} \rightarrow \boxed{\text{Low(L) (2: yes, 2: no)}}, \boxed{\text{Medium(M) (2: Y, 2: N)}} \text{ and } \boxed{\text{High(H) (2: Y, 1: N)}}
+\end{equation*}
+Impurity after split:
+\begin{gather*}
+\displaystyle \text{Imp}_{\text{Price}} = -\left(\frac{n_{\text{L}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{L}}\log_{2}(p_{i | \text{L}})\right) + \frac{n_{\text{M}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{M}}\log_{2}(p_{i | \text{M}})\right) + \frac{n_{\text{H}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{H}}\log_{2}(p_{i | \text{H}})\right) \right) \\
+\implies \displaystyle \text{Imp}_{\text{Price}} = -\left(\frac{4}{11}\left(\frac{1}{2}\log_{2}\frac{1}{2} + \frac{1}{2}\log_{2}\frac{1}{2}\right) + \frac{4}{11}\left(\frac{1}{2}\log_{2}\frac{1}{2} + \frac{1}{2}\log_{2}\frac{1}{2}\right) + \frac{3}{11}\left(\frac{2}{3}\log_{2}\frac{2}{3} + \frac{1}{3}\log_{2}\frac{1}{3}\right)\right) \\
+\implies \text{Imp}_{\text{Price}} \approx \mathbf{0.9778}
+\end{gather*}
+
+For \texttt{Maintenance}, the split gives:
+\begin{equation*}
+\boxed{\text{Maintain (6: Y, 5: N)}} \rightarrow \boxed{\text{Low(L) (2: yes, 0: no)}}, \boxed{\text{Medium(M) (2: Y, 2: N)}} \text{ and } \boxed{\text{High(H) (2: Y, 3: N)}}
+\end{equation*}
+Impurity after split:
+\begin{gather*}
+\displaystyle \text{Imp}_{\text{Maintain}} = -\left(\frac{n_{\text{L}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{L}}\log_{2}(p_{i | \text{L}})\right) + \frac{n_{\text{M}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{M}}\log_{2}(p_{i | \text{M}})\right) + \frac{n_{\text{H}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{H}}\log_{2}(p_{i | \text{H}})\right) \right) \\
+\implies \displaystyle \text{Imp}_{\text{Maintain}} = -\left(\frac{2}{11}\left(1\log_{2}1 + 0\log_{2}0\right) + \frac{4}{11}\left(\frac{1}{2}\log_{2}\frac{1}{2} + \frac{1}{2}\log_{2}\frac{1}{2}\right) + \frac{5}{11}\left(\frac{2}{5}\log_{2}\frac{2}{5} + \frac{3}{5}\log_{2}\frac{3}{5}\right)\right) \\
+\implies \text{Imp}_{\text{Maintain}} \approx \mathbf{0.8050}
+\end{gather*}
+
+For \texttt{Capacity}, the split gives:
+\begin{equation*}
+\boxed{\text{Capacity (6: Y, 5: N)}} \rightarrow \boxed{\text{2 (1: yes, 2: no)}}, \boxed{\text{4 (3: Y, 3: N)}} \text{ and } \boxed{\text{5 (2: Y, 0: N)}}
+\end{equation*}
+Impurity after split:
+\begin{gather*}
+\displaystyle \text{Imp}_{\text{Capacity}} = -\left(\frac{n_{\text{2}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{2}}\log_{2}(p_{i | \text{2}})\right) + \frac{n_{\text{4}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{4}}\log_{2}(p_{i | \text{4}})\right) + \frac{n_{\text{5}}}{n}\left(\sum_{i = \{Y, N\}} p_{i | \text{5}}\log_{2}(p_{i | \text{5}})\right) \right) \\
+\implies \displaystyle \text{Imp}_{\text{Capacity}} = -\left(\frac{3}{11}\left(\frac{1}{3}\log_{2}\frac{1}{3} + \frac{2}{3}\log_{2}\frac{2}{3}\right) + \frac{6}{11}\left(\frac{1}{2}\log_{2}\frac{1}{2} + \frac{1}{2}\log_{2}\frac{1}{2}\right) + \frac{2}{11}\left(1\log_{2}1 + 0\log_{2}0\right)\right) \\
+\implies \text{Imp}_{\text{Capacity}} \approx \mathbf{0.7959}
+\end{gather*}
+
+Now the impurity at the root is given by: \(\text{Imp}_{\text{root}} = \displaystyle -\frac{6}{11}\log_{2}\frac{6}{11} -\frac{5}{11}\log_{2}\frac{5}{11} \approx 0.994\).
+\(\newline\)
+
+The information gain for every split is:
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Split & Inf. Gain \\
+\hline
+\texttt{Price} & \(0.994 - 0.9778 = 0.0163\) \\
+\hline
+\texttt{Maintenance} & \(0.994 - 0.8050 = 0.189\) \\
+\hline
+\texttt{Capacity} & \(0.994 - 0.7959 = 0.1981\) \\
+\hline 
+\end{tabular}
+\end{center}
+
+From this, it is evident that splitting at \textbf{Capacity} gives us better information gain.
+\end{flushleft}
+\subsection*{Part b}
 \end{document}
