@@ -1,0 +1,69 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{Solutions to Assignment 1 : CS6510 - Applied Machine Learning}
+\author{Vishwak S\\
+\texttt{CS15BTECH11043}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Question 1}
+\subsection*{Part 1}
+\begin{flushleft}
+Since \(X\) and \(Y\) are independent, \(P(X)\times P(Y) = P(X \cap Y)\). \(P(\bar{X}) = 1 - P(X)\). Due to this:
+\begin{gather*}
+P(\bar{X} \cap Y) = P(Y) - P(X \cap Y) \quad \text{ (from Set Theory)} \\
+\implies P(\bar{X} \cap Y) = P(Y) - P(Y)\times P(X) = P(Y)(1 - P(X)) = P(Y) \times P(\bar{X}) 
+\end{gather*}
+
+Hence \(\bar{X}\) and \(Y\) are independent.
+\end{flushleft}
+
+\subsection*{Part 2}
+\begin{flushleft}
+Listing down the information from the question:
+\begin{center}
+\begin{tabular}{c c c c}
+\(P(C1 = H) \) & \(= 0.5\) & \(P(C1 = T) \) & \( = 0.5\) \\
+\(P(C2 = H | C1 = H) \) & \(= 0.7\) & \(P(C2 = H | C1 = T) \) & \( = 0.5\) 
+\end{tabular}
+\end{center}
+
+From Bayes' Theorem: \(P(A | B) = \displaystyle \frac{P(B | A) P(A)}{P(B)}\). We need to find: \(P(C1 = T \cap C2 = H)\).
+\begin{gather*}
+P(C1 = T \cap C2 = H) = P(C2 = H) \times P(C1 = T | C2 = H) \quad \text{ (from Conditional probability)} \\
+\implies P(C1 = T \cap C2 = H) = P(C2 = H) \times \displaystyle \frac{P(C2 = H | C1 = T) P(C1 = T)}{P(C2 = H)} \quad \text{ (from Bayes' Theorem)}\\
+\implies P(C1 = T \cap C2 = H) = P(C1 = T | C2 = H) P(C1 = T) = 0.5 \times 0.5 = \boxed{0.25}
+\end{gather*}
+\end{flushleft}
+
+\section*{Question 2}
+\subsection*{Part a}
+\begin{flushleft}
+A set \(S\) is a vector space if the following conditions hold:
+\begin{itemize}
+\item if \(u, v \in S\), then \(u + v \in S\).
+\item if \(u \in S\), then \(\alpha u \in S \quad \forall \alpha\).
+\end{itemize}
+
+\(\nexists u, v \in S = \emptyset\), hence the first condition holds [\texttt{False} \(\implies\) \texttt{True} is \texttt{True}]. Similarly, \(\nexists u \in S = \emptyset\), hence the second condition holds for the same reason above. Hence the empty set is a vector space.
+\end{flushleft}
+
+\subsection*{Part b}
+\begin{flushleft}
+Let \(M^{-1}\) be of the form: \(I + \alpha(\mathbf{u} \mathbf{v}^{T})\). We know that: \(M M^{-1} = I\). Applying this we get:
+\begin{gather*}
+M  M^{-1} = I \\
+(I + \mathbf{u}\mathbf{v}^T) (I + \alpha(\mathbf{u}\mathbf{v}^{T})) = I \\
+\implies I + \mathbf{u}\mathbf{v}^{T}(1 + \alpha) + \alpha\mathbf{u}(\mathbf{v}^{T} \mathbf{u})\mathbf{v}^{T} = I \\
+\implies \mathbf{u}\mathbf{v}^{T}\left((1 + \alpha) + \alpha(\mathbf{v}^{T}\mathbf{u})\right) = \mathbf{0} \\
+\implies \alpha = \displaystyle \frac{-1}{1 + \mathbf{v}^{T} \mathbf{u}} 
+\end{gather*}
+
+Since there is an \(\alpha\), we can tell that our assumption is true, and hence the inverse of the matrix \(M\) is of the form \(I + \alpha(\mathbf{u}\mathbf{v}^{T})\). 
+\end{flushleft}
+\end{document}
