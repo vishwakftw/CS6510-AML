@@ -33,11 +33,12 @@ Listing down the information from the question:
 \end{tabular}
 \end{center}
 
-From Bayes' Theorem: \(P(A | B) = \displaystyle \frac{P(B | A) P(A)}{P(B)}\). We need to find: \(P(C1 = T \cap C2 = H)\).
+From Bayes' Theorem: \(P(A | B) = \displaystyle \frac{P(B | A) P(A)}{P(B)}\). We need to find: \(P(C1 = T \cap C2 = H | S = 1)\).
 \begin{gather*}
-P(C1 = T \cap C2 = H) = P(C2 = H) \times P(C1 = T | C2 = H) \quad \text{ (from Conditional probability)} \\
-\implies P(C1 = T \cap C2 = H) = P(C2 = H) \times \displaystyle \frac{P(C2 = H | C1 = T) P(C1 = T)}{P(C2 = H)} \quad \text{ (from Bayes' Theorem)}\\
-\implies P(C1 = T \cap C2 = H) = P(C1 = T | C2 = H) P(C1 = T) = 0.5 \times 0.5 = \boxed{0.25}
+\displaystyle P(C1 = T \cap C2 = H | S = 1) = \frac{P(C1 = T \cap C2 = H) P(S = 1 | C1 = T \cap C2 = H)}{P(S = 1)} \quad \text{ (from Bayes' Theorem)} \\
+\implies \displaystyle P(C1 = T \cap C2 = H | S = 1) = \frac{P(C2 = H | C1 = T) P(C1 = T) \times 1}{P(C2 = H \cap C1 = T) + P(C2 = T \cap C1 = H)} \quad \text{ (from Cond. Probability)} \\
+\implies \displaystyle P(C1 = T \cap C2 = H | S = 1) = \frac{0.5 \times 0.5}{P(C2 = H | C1 = T) P(C1 = T) + P(C2 = T | C1 = H) P(C1 = H)} \\
+\implies \displaystyle P(C1 = T \cap C2 = H | S = 1) = \frac{0.25}{0.5 \times 0.5 + 0.3 \times 0.5} = \frac{5}{8} = \boxed{0.625}
 \end{gather*}
 \end{flushleft}
 
