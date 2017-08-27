@@ -2,6 +2,8 @@
 \usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{float}
+\usepackage{graphicx}
 
 \title{Solutions to Assignment 1 : CS6510 - Applied Machine Learning}
 \author{Vishwak S\\
@@ -153,6 +155,40 @@ U\Lambda U^{-1} = \begin{bmatrix} 2\gamma & 2\zeta \\ 3\gamma & 4\zeta \end{bmat
 Verified. 
 \end{flushleft}
 
+\section*{Question 4}
+\subsection*{Part a}
+\begin{flushleft}
+When you are calculating the training loss, the entire training set is taken into account. Hence while predicting the class for a particular \(\mathbf{x}_{i}\) in the training set, the closest neighbour to \(\mathbf{x}_{i}\) is itself. Hence if \(k=1\), then the training loss is \(0\) (considering a zero-one loss).
+\(\newline\)
+
+In general it can be said that the loss is expected to have an increasing trend as \(k\) increases. But when \(k = n\), then the majority class is given. In our case, there is no majority class, hence the labelling might depend on the ordering of the data. \(\frac{n}{2}\) points will be given the opposite class, hence the training loss will be \(\frac{n}{2}\) (again considering a zero-one loss).
+\end{flushleft}
+
+\subsection*{Part b}
+\begin{flushleft}
+We can expect the loss to vary in a parabolic sense. This is shown in the sketch below:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{4b.jpg}
+\caption{The dotted lines represent a smoothened behaviour of the thick line depicting a possible variation in the testing loss (assuming zero-one loss)}
+\end{figure}
+
+Although this is a general opinion, the exact variation of the test loss will depend on the similarities of distribution of the training and testing set. But if \(k\) is too-small, then we become more sensitive to the noise in the data. On the contrary, if \(k\) is too large, then we begin to get attributes for other classes. Hence the parabolic nature of the plot.
+\end{flushleft}
+
+\subsection*{Part c}
+\begin{flushleft}
+\begin{itemize}
+\item If the dimensionality is too high, there are higher computation costs to evaluate the "distance" between two points and also storing them. Coupled with the fact that you need to run through the entire training set to make predictions, this is one disadvantage of k-NN.
+\item If the dimensionality is high, it can be shown mathematically that the concentration of points are higher close to the surface than in the volume. This is known as the curse of dimensionality. Due to this, the neighbours of a given point are actually not close anymore, meaning that the neighbours of that point are actually far which may influence the class of the given point.
+\end{itemize}
+\end{flushleft}
+
+\subsection*{Part d}
+\begin{flushleft}
+It is possible to generate a tree to match the predictions of a 1-NN classifier. All we need is fully-constructed univariate decision tree. However it is generally impossible to match the decision boundary of 1-NN classifier. The 1-NN classifier has decision boundaries depicted by a Voronoi diagram (which are in some sense polyhedral), whereas the decision boundaries for a decision tree with the decisions as inequalities would be boxes with sides parallel to the axes.
+\end{flushleft}
+
 \section*{Question 5}
 \subsection*{Part a}
 \begin{flushleft}
@@ -238,35 +274,35 @@ Calculating the impurity for 1 (and 2, 5):
 
 Calculating the impurity for 3:
 \begin{gather*}
-\text{Imp}_{3} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2})\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L or M}}^{2}\right)\right) \\
+\text{Imp}_{3} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2}\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L or M}}^{2}\right)\right) \\
 \text{Imp}_{3} = \left(\frac{3}{11} \left(1 - \frac{4}{9} - \frac{1}{9}\right) + \frac{8}{11} \left(1 - \frac{1}{4} - \frac{1}{4}\right)\right) \\
 \text{Imp}_{3} \approx \mathbf{0.4849} 
 \end{gather*}
 
 Calculating the impurity for 4 (and 9):
 \begin{gather*}
-\text{Imp}_{4} = \left(\frac{n_{\text{L}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L}}^{2})\right) + \frac{n_{\text{M or H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{M or H}}^{2}\right)\right) \\
+\text{Imp}_{4} = \left(\frac{n_{\text{L}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{L}}^{2}\right) + \frac{n_{\text{M or H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{M or H}}^{2}\right)\right) \\
 \text{Imp}_{4} = \left(\frac{2}{11} \left(1 - 1 - 0\right) + \frac{9}{11} \left(1 - \frac{16}{81} - \frac{25}{81}\right)\right) \\
 \text{Imp}_{4} \approx \mathbf{0.4040} 
 \end{gather*}
 
 Calculating the impurity for 6:
 \begin{gather*}
-\text{Imp}_{6} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2})\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{Lor M}}^{2}\right)\right) \\
+\text{Imp}_{6} = \left(\frac{n_{\text{H}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{H}}^{2}\right) + \frac{n_{\text{L or M}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{Lor M}}^{2}\right)\right) \\
 \text{Imp}_{6} = \left(\frac{5}{11} \left(1 - \frac{4}{25} - \frac{9}{25}\right) + \frac{6}{11} \left(1 - \frac{4}{9} - \frac{1}{9}\right)\right) \\
 \text{Imp}_{6} \approx \mathbf{0.4606} 
 \end{gather*}
 
 Calculating the impurity for 7:
 \begin{gather*}
-\text{Imp}_{7} = \left(\frac{n_{\text{2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{2}}^{2})\right) + \frac{n_{\text{4 or 5}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4 or 5}}^{2}\right)\right) \\
+\text{Imp}_{7} = \left(\frac{n_{\text{2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{2}}^{2}\right) + \frac{n_{\text{4 or 5}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4 or 5}}^{2}\right)\right) \\
 \text{Imp}_{7} = \left(\frac{3}{11} \left(1 - \frac{1}{9} - \frac{4}{9}\right) + \frac{8}{11} \left(1 - \frac{25}{64} - \frac{9}{64}\right)\right) \\
 \text{Imp}_{7} \approx \mathbf{0.4621} 
 \end{gather*}
 
 Calculating the impurity for 8 (and 10):
 \begin{gather*}
-\text{Imp}_{8} = \left(\frac{n_{\text{4}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4}}^{2})\right) + \frac{n_{\text{5 or 2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{5 or 2}}^{2}\right)\right) \\
+\text{Imp}_{8} = \left(\frac{n_{\text{4}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{4}}^{2}\right) + \frac{n_{\text{5 or 2}}}{n} \left(1 - \sum_{i = \{Y, N\}} p_{i | \text{5 or 2}}^{2}\right)\right) \\
 \text{Imp}_{8} = \left(\frac{6}{11} \left(1 - \frac{1}{4} - \frac{1}{4}\right) + \frac{5}{11} \left(1 - \frac{9}{25} - \frac{4}{25}\right)\right) \\
 \text{Imp}_{8} \approx \mathbf{0.4909} 
 \end{gather*}
