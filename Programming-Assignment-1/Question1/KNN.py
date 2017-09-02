@@ -29,6 +29,8 @@ class KNN(object):
 			The function to predict to a batch of testing inputs.
 			Args:
 				X		= The testing inputs	: numpy.ndarray of shape (n_points, n_params)
+			Returns:
+				list with predictions in the same order as the inputs
 		"""
 		predictions	= []
 
@@ -36,9 +38,7 @@ class KNN(object):
 		for i in range(0, X.shape[0]):
 			distances 	= []
 			for j in range(0, self.X.shape[0]):
-				dstnce	= X[i] - self.X[j]
-				dstnce	= np.power(dstnce, 2).sum()
-				dstnce	= np.power(dstnce, 0.5)
+				dstnce	= np.linalg.norm(X[i] - self.X[j])
 				distances.append(dstnce)
 			knns	= np.argpartition(distances, self.K)[0:self.K].tolist()
 
