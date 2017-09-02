@@ -49,7 +49,7 @@ def get_dataset(n_pts, n_params, prm_rnge=[0, 100], clss_rnge=[0, 1], tr_splt=0.
 	dset	= get_random(n_points=n_pts, n_params=n_params, param_range=prm_rnge, class_range=clss_rnge)
 	
 	for i in range(0, n_shffle):
-		np.random.shuffle(dset)
+		dset = np.random.permutation(dset)
 	
 	indxs	= np.arange(1, n_pts + 1, 1).reshape((n_pts, 1))
 	dset	= np.concatenate((indxs, dset), axis=1)
