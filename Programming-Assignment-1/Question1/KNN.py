@@ -26,7 +26,7 @@ class KNN(object):
 	
 	def predict(self, X):
 		"""
-			The function to predict to a batch of testing inputs.
+			The function to predict the labels of a batch of testing inputs.
 			Args:
 				X		= The testing inputs	: numpy.ndarray of shape (n_points, n_params)
 			Returns:
