@@ -23,16 +23,15 @@ def get_files(root, train=True):
 				
 	return ret_files
 	
-def get_data(root, split=True):
+def get_dataset(root, n_shuffle=3):
 	"""
-		Function to get the data from all the files after vectorization
+		Function to get the dataset from all the files after vectorization
 		Args:
 			root		= Root directory of the EmailsData folder
-			split		= (Optional, default = True) Requirement of split data or combined data
+			n_shuffle	= (Optional, default = 3) Number of times to shuffle the data
 		Returns:
-			numpy.ndarray(s) of shape (n_files, n_attributes), 
+			numpy.ndarrays of shape (n_files, n_attributes + 1) (train and test), 
 			where n_attributes is obtained using TfidfVectorizer in sklearn
-			If split is true, then two numpy.ndarrays, else one numpy.ndarray
 			
 	"""
 	train_files	= get_files(root=root, train=True)
@@ -43,10 +42,32 @@ def get_data(root, split=True):
 	all_data	= vectorizer.fit_transform(all_files)
 	all_data	= all_data.toarray()
 	
-	if split == True:
-		train_data	= all_data[0 : len(train_files)]
-		test_data	= all_data[ len(train_files) : ]
+	train_input	= all_data[ : len(train_files) ]
+	test_input	= all_data[ len(train_files) : ]
+	
+	train_output	= []
+	test_output	= []
+	for f in all_files:
+		if f.find('nonspam') != -1:
+			if f.find('train') != -1:
+				train_output.append(0)
+			else:
+				test_output.append(0)
+		else:
+			if f.find('train') != -1:
+				train_output.append(1)
+			else:
+				test_output.append(1)
+	
+	assert len(train_output) == len(train_files) and len(test_output) == len(test_files), "Some issue with classification"
+	train_output	= np.array(train_output).reshape((len(train_output), 1))
+	test_output	= np.array(test_output).reshape((len(test_output), 1))
+	
+	train_set	= np.concatenate((train_input, train_output), axis=1)
+	test_set	= np.concatenate((test_input, test_output), axis=1)
+	
+	for _ in range(0, n_shuffle):
+		train_set	= np.random.permutation(train_set)
+		test_set	= np.random.permutation(test_set)
 		
-		return train_data, test_data
-	else:
-		return all_data
+	return train_set, test_set
