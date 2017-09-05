@@ -28,19 +28,31 @@ class NB(object):
 					
 		self.p_class		= [n/sum(n_class) for n in n_class]
 		
-		# Get the means of the features for separate classes
-		means	= np.array([np.full(X.shape[1], 0), np.full(X.shape[1], 0)]).astype(np.float64)
-		stddevs	= means.copy()
-		
+		# Maintaining classwise split for quicker mean and variance calculation
+		classwise_split	= []
+		for i in range(0, len(n_class)):
+			classwise_split.append(np.empty(shape=(n_class[i], X.shape[1])))
+			
 		for i in range(0, X.shape[0]):
-			means[Y[i]] += X[i]/n_class[Y[i]]
+			n_class[Y[i]]	-= 1
+			classwise_split[Y[i]][n_class[Y[i]]]	= X[i]
 		
-		for i in range(0, X.shape[0]):
-			stddevs[Y[i]] += np.power((X[i] - means[Y[i]]), 2)/n_class[Y[i]]
-		stddevs	= np.power(stddevs, 0.5)
+		assert	n_class.all() == 0, "Mis-calculation in class frequencies"
+
+		# Original data will be discarded (which came as argument)
+		del X
 		
-		self.means	= means
-		self.stddevs	= stddevs
+		means	= []
+		vrncs	= []
+		for i in range(0, len(n_class)):
+			means.append(np.mean(classwise_split[i], axis=0))
+			vrncs.append(np.var(classwise_split[i], axis=0))
+
+		# Classwise split will be discarded as well
+		del classwise_split
+						
+		self.means	= np.array(means)
+		self.vars	= np.array(vrncs)
 		
 	def predict(self, X):
 		"""
@@ -51,23 +63,23 @@ class NB(object):
 				list with prediction in the same order as the inputs
 		"""
 		predictions	= []
-		for i in range(0, X.shape[0]):
-			x	= X[i]
-			probs	= []
-			for j in range(0, len(self.p_class)):
-				p	= self.p_class[j]
-				nb_p	= log_gaussian_prob(x=x, means=self.means[j], stddevs=self.stddevs[j])
-				p	= p + np.sum(nb_p)
-				probs.append(p)
-			predictions.append(np.argmax(probs))
-		return predictions
+		probs	= []
+
+		for i in range(0, len(self.p_class)):
+			prior	= np.log(self.p_class[i])
+			llhood	= log_gaussian_prob(x=X, means=self.means[i], variances=self.vars[i])
+			probs.append((prior + llhood).sum(axis=1))
+
+		predictions	= np.argmax(np.array(probs), axis=0).tolist()
+		return predictions, probs
 		
-def log_gaussian_prob(x, means, stddevs):
+def log_gaussian_prob(x, means, variances):
 
 	# To prevent runtime overflow, we add a very small value
-	# We are not calculating exact gaussian probability, instead the log of the expression with variables
+	# We are not calculating exact gaussian probability, instead the log of the expression with variables (means and variances)
 
-	stddevs	= stddevs + 1e-12
-	pass_	= np.power(x - means, 2)
-	pass_	= -pass_/(2*np.power(stddevs, 2))
+	variances	+= 1e-12
+	pass_	= ((x - means)**2)/variances
+	pass_	= -pass_ - 0.5*np.log(variances)
+	
 	return pass_
