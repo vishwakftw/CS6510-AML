@@ -36,7 +36,7 @@ class NB(object):
 			means[Y[i]] += X[i]/n_class[Y[i]]
 		
 		for i in range(0, X.shape[0]):
-			stddevs[Y[i]] += np.power((X[i] - Y[i]), 2)/n_class[Y[i]]
+			stddevs[Y[i]] += np.power((X[i] - means[Y[i]]), 2)/n_class[Y[i]]
 		stddevs	= np.power(stddevs, 0.5)
 		
 		self.means	= means
@@ -55,16 +55,19 @@ class NB(object):
 			x	= X[i]
 			probs	= []
 			for j in range(0, len(self.p_class)):
-				p	= p_class[j]
-				nb_p	= gaussian_prob(x=x, means=self.means[j], stddevs=self.stddevs[j])
-				p	= p*np.prod(nb_p)
+				p	= self.p_class[j]
+				nb_p	= log_gaussian_prob(x=x, means=self.means[j], stddevs=self.stddevs[j])
+				p	= p + np.sum(nb_p)
 				probs.append(p)
 			predictions.append(np.argmax(probs))
 		return predictions
 		
-def gaussian_prob(x, means, stddevs):
+def log_gaussian_prob(x, means, stddevs):
+
+	# To prevent runtime overflow, we add a very small value
+	# We are not calculating exact gaussian probability, instead the log of the expression with variables
+
+	stddevs	= stddevs + 1e-12
 	pass_	= np.power(x - means, 2)
 	pass_	= -pass_/(2*np.power(stddevs, 2))
-	pass_	= np.exp(pass_)
-	pass_	= pass_/(np.sqrt(2*np.pi)*stddevs)
 	return pass_

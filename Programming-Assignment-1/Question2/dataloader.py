@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer as vct
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 def get_files(root, train=True):
 	"""
@@ -36,32 +37,39 @@ def get_dataset(root, n_shuffle=3):
 	"""
 	train_files	= get_files(root=root, train=True)
 	test_files	= get_files(root=root, train=False)
-	all_files	= train_files + test_files
 	
 	vectorizer	= vct(input='filename')
-	all_data	= vectorizer.fit_transform(all_files)
-	all_data	= all_data.toarray()
-	
-	train_input	= all_data[ : len(train_files) ]
-	test_input	= all_data[ len(train_files) : ]
-	
+	train_input	= vectorizer.fit_transform(train_files).toarray()
+	test_input	= vectorizer.transform(test_files).toarray()
+		
 	train_output	= []
 	test_output	= []
-	for f in all_files:
+
+	# Non-spam is 0 and spam is 1
+	for f in train_files:
 		if f.find('nonspam') != -1:
-			if f.find('train') != -1:
-				train_output.append(0)
-			else:
-				test_output.append(0)
+			train_output.append(0)
 		else:
-			if f.find('train') != -1:
-				train_output.append(1)
-			else:
-				test_output.append(1)
+			train_output.append(1)
+
+	for f in test_files:
+		if f.find('nonspam') != -1:
+			test_output.append(0)
+		else:
+			test_output.append(1)
 	
 	assert len(train_output) == len(train_files) and len(test_output) == len(test_files), "Some issue with classification"
-	train_output	= np.array(train_output).reshape((len(train_output), 1))
-	test_output	= np.array(test_output).reshape((len(test_output), 1))
+	train_output	= np.array(train_output)
+	test_output	= np.array(test_output)
+	
+	# Perform feature selection
+	ftr_slctn	= SelectKBest(score_func=mutual_info_classif, k=50)
+	train_input	= ftr_slctn.fit_transform(train_input, train_output)
+	test_input	= ftr_slctn.transform(test_input)
+	
+	# Form the train and test set
+	train_output	= train_output.reshape((-1, 1))
+	test_output	= test_output.reshape((-1, 1))
 	
 	train_set	= np.concatenate((train_input, train_output), axis=1)
 	test_set	= np.concatenate((test_input, test_output), axis=1)
