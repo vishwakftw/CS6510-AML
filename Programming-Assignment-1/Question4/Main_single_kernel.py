@@ -8,13 +8,13 @@ from kernels import polynomial_gram_matrix as pgm
 from sklearn.model_selection import StratifiedKFold
 
 parser	= ArgumentParser()
-parser.add_argument('--root', required=True, help='root folder for the dataset')
+parser.add_argument('--dataroot', required=True, help='root folder for the dataset')
 parser.add_argument('--kernel', required=True, help='kernel : linear | polynomial | gaussian')
 parser.add_argument('--q', type=int, default=2, help='parameter for polynomial kernel')
 parser.add_argument('--sigma', type=float, default=1, help='parameter for gaussian kernel')
 opt	= parser.parse_args()
 	
-train, test_x		= get_dataset(root=sys.argv[1])
+train, test_x		= get_dataset(root=opt.dataroot)
 train_x, train_y	= train[ : , 0 : train.shape[1] - 1], train[ : , train.shape[1] - 1 ]
 
 svm_classifier	= svm.SVC(kernel='precomputed')
@@ -43,8 +43,8 @@ for tr, va in cross_valid.split(train_x, train_y):
 	tr_predictions	= svm_classifier.predict(tr_gram_matrix)
 	va_predictions	= svm_classifier.predict(va_gram_matrix)
 
-	tr_accuracy	= 1 - np.abs(tr_predictions - tr_y).sum()/tr_y.shape[0]
-	va_accuracy	= 1 - np.abs(va_predictions - va_y).sum()/va_y.shape[0]
+	tr_accuracy	= round(1 - np.abs(tr_predictions - tr_y).sum()/tr_y.shape[0], 5)
+	va_accuracy	= round(1 - np.abs(va_predictions - va_y).sum()/va_y.shape[0], 5)
 	
 	tr_accuracies.append(tr_accuracy)
 	va_accuracies.append(va_accuracy)
