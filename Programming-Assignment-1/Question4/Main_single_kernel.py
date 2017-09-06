@@ -43,11 +43,11 @@ for tr, va in cross_valid.split(train_x, train_y):
 	tr_predictions	= svm_classifier.predict(tr_gram_matrix)
 	va_predictions	= svm_classifier.predict(va_gram_matrix)
 
-	tr_accuracy	= round(1 - np.abs(tr_predictions - tr_y).sum()/tr_y.shape[0], 5)
-	va_accuracy	= round(1 - np.abs(va_predictions - va_y).sum()/va_y.shape[0], 5)
+	tr_accuracy	= 1 - np.abs(tr_predictions - tr_y).sum()/tr_y.shape[0]
+	va_accuracy	= 1 - np.abs(va_predictions - va_y).sum()/va_y.shape[0]
 	
-	tr_accuracies.append(tr_accuracy)
-	va_accuracies.append(va_accuracy)
+	tr_accuracies.append(round(tr_accuracy, 5))
+	va_accuracies.append(round(va_accuracy, 5))
 	
 print('Train Accuracies across all folds: {0}'.format(tr_accuracies))
 print('Validation Accuracies across all folds: {0}'.format(va_accuracies))
