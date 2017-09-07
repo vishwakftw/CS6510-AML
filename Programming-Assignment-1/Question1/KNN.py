@@ -14,15 +14,15 @@ class KNN(object):
 		
 		self.K		= K
 		
-	def fit(self, X, Y):
+	def fit(self, X, y):
 		"""
 			The function to fit the training data.
 			Args:
 				X		= The training inputs  : numpy.ndarray of shape (n_points, n_params)
-				Y		= The training outputs : numpy.ndarray of shape (n_points, )
+				y		= The training outputs : numpy.ndarray of shape (n_points, )
 		"""
 		self.X	= X
-		self.Y	= Y
+		self.y	= y
 	
 	def predict(self, X):
 		"""
@@ -46,9 +46,9 @@ class KNN(object):
 			count0	= 0
 			count1	= 0
 			for n in knns:
-				if self.Y[n] == 0:
+				if self.y[n] == 0:
 					count0	+= 1
-				elif self.Y[n] == 1:
+				elif self.y[n] == 1:
 					count1	+= 1
 			prdctn	= 1 if count1 > count0 else 0
 			predictions.append(prdctn)

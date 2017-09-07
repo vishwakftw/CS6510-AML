@@ -17,7 +17,7 @@ class MultiKernelFR(object):
 				hyperparameters	= The values for the "q" and "sigma" in polynomial and Gaussian kernel respectively
 		"""
 		super(MultiKernelFR, self).__init__()
-		assert sum(self.gammas) == 1, "Non-convex combination given"
+		assert sum(self.gammas) == 1, "gammas must add up to 1"
 		self.gammas	= gammas
 		self.hyparams	= hyperparameters
 		
