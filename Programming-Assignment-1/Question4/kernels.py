@@ -37,9 +37,8 @@ def gaussian_kernel(x_i, x_j, sigma):
 	"""
 	assert sigma > 0, "sigma is supposed to be strictly positive"
 	
-	k	= x_i.flatten() - x_j.flatten()
-	k	= -np.power(k, 2).sum()
-	k	= np.exp(k/sigma**2)
+	k	= np.linalg.norm(x_i - x_j)/sigma
+	k	= np.exp(-(k**2))
 	return k
 	
 def linear_gram_matrix(X, Y):
@@ -92,3 +91,5 @@ def gaussian_gram_matrix(X, Y, sigma):
 	for i, x in enumerate(X):
 		for j, y in enumerate(Y):
 			gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
+			
+	return gram_matrix

@@ -13,14 +13,31 @@ def make_dict(cur_dict, key, values):
 	"""
 	cur_dict[key] = {}
 	for i, v in enumerate(values):
-		cur_dict[key][v] = i
+		if v.find('?') != -1:
+			cur_dict[key][v] = -1
+		else:
+			cur_dict[key][v] = i
 	return cur_dict
 	
-def get_dataset(root):
+def normalize_to_snd(matrix):
+	"""
+		Function to normalize the tensor to 0-mean and 1-variance (Standard Normal Distribution)
+		Args:
+			matrix		= matrix to be normalized
+		Returns:
+			normalized matrix of the same shape as the original matrix
+	"""
+	means, stddvs	= np.mean(matrix, axis=1), np.std(matrix, axis=1)
+	means, stddvs	= means.repeat(matrix.shape[1]), stddvs.repeat(matrix.shape[1])
+	means, stddvs	= means.reshape(matrix.shape), stddvs.reshape(matrix.shape)
+	return (matrix - means)/stddvs
+	
+def get_dataset(root, normalize):
 	"""
 		Function to make the dataset
 		Args:
 			root		= Root destination for the data folder
+			normalize	= Option to normalize to the data
 		Returns:
 			2-tuple of numpy.ndarray of shape (n_points, n_features (+1)) (+1 for training - outputs are appended to each input)
 			1st element is the training data, 2nd element is the testing data
@@ -73,7 +90,15 @@ def get_dataset(root):
 			
 	train_data	= train_data.astype(float)
 	test_data	= test_data.astype(float)
+		
 	assert np.isnan(train_data).any() == False, "Some conversions in Training Data have been missed"
 	assert np.isnan(train_data).any() == False, "Some conversions in Testing Data have been missed"
 	
+	if normalize == True:
+		# Normalize to standard normal
+		train_data[:, :train_data.shape[1] - 1]	= normalize_to_snd(train_data[:, :train_data.shape[1] - 1])
+
+		# Normalize to standard normal
+		test_data	= normalize_to_snd(test_data)
+		
 	return train_data, test_data
