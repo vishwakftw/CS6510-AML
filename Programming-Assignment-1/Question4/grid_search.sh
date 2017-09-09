@@ -2,9 +2,9 @@
 
 dataroot="../../../../CS6510/PA-1"
 
-upoly=10
-lpoly=1
-njobs=2
+upoly=$1
+lpoly=$2
+njobs=$3
 
 for i in ` seq $lpoly $njobs $upoly `;
 	do
@@ -17,10 +17,10 @@ for i in ` seq $lpoly $njobs $upoly `;
 		python3 Main_single_kernel.py --dataroot $dataroot --kernel polynomial --q $( expr $i + $njobs - 1 ) --normalize
 	done
 	
-ugauss=5
-lgauss=0.5
-step=0.5
-njobs=2
+ugauss=$4
+lgauss=$5
+step=$6
+njobs=$7
 iseq_step=$(python3 -c "print($step * $njobs)")
 jseq_end=$(python3 -c "print($step * $njobs - $step)")
 

@@ -56,4 +56,4 @@ for tr, va in cross_valid.split(train_x, train_y):
 	
 kernel_comb = {'linear': 'linear', 'polynomial': 'polynomial-{0}'.format(opt.q), 'gaussian':'gaussian-{0}'.format(opt.sigma)}
 file_results	= open('results.txt', 'a')
-file_results.write('{0}\t{1}\t{2}'.format(kernel_comb[opt.kernel], np.mean(tr_accuracy), np.mean(va_accuracy)))
+file_results.write('{0}\t{1}\t{2}\n'.format(kernel_comb[opt.kernel], np.mean(tr_accuracy), np.mean(va_accuracy)))

@@ -52,9 +52,15 @@ def linear_gram_matrix(X, Y):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= linear_kernel(x, y)
+	if X.shape[0] == Y.shape[0]:
+		for i in range(0, X.shape[0]):
+			for j in range(0, X.shape[0] - i):
+				gram_matrix[i, j]	= gram_matrix[j, i]	= linear_kernel(X[i], Y[j])
+
+	else:
+		for i, x in enumerate(X):
+			for j, y in enumerate(Y):
+				gram_matrix[i, j]	= linear_kernel(x, y)
 			
 	return gram_matrix
 	
@@ -70,12 +76,18 @@ def polynomial_gram_matrix(X, Y, q):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= polynomial_kernel(x, y, q)
+	if X.shape[0] == Y.shape[0]:
+		for i in range(0, X.shape[0]):
+			for j in range(0, X.shape[0] - i):
+				gram_matrix[i, j]	= gram_matrix[j, i]	= polynomial_kernel(X[i], Y[j], q)
+
+	else:
+		for i, x in enumerate(X):
+			for j, y in enumerate(Y):
+				gram_matrix[i, j]	= polynomial_kernel(x, y, q)
 			
 	return gram_matrix
-	
+				
 def gaussian_gram_matrix(X, Y, sigma):
 	"""
 		Function to calculate the Gaussian gram matrix
@@ -88,8 +100,14 @@ def gaussian_gram_matrix(X, Y, sigma):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform element-wise subtraction on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
+	if X.shape[0] == Y.shape[0]:
+		for i in range(0, X.shape[0]):
+			for j in range(i, X.shape[0]):
+				gram_matrix[i, j]	= gram_matrix[j, i]	= gaussian_kernel(X[i], Y[j], sigma)
+
+	else:
+		for i, x in enumerate(X):
+			for j, y in enumerate(Y):
+				gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
 			
 	return gram_matrix
