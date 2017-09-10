@@ -6,8 +6,10 @@ class DecisionTree:
 		"""
 			Constructor for the class
 		"""
+		import os
 		import numpy
 		self.np		= numpy
+		self.os		= os
 		self.root	= self.node()
 		
 	def node(self, splits=None, val=None, indices=None):
@@ -22,7 +24,7 @@ class DecisionTree:
 		"""
 		return {'splits': splits, 'val': val, 'indices': indices}
 				
-	def fit(self, X, y, impurity_func='entropy'):
+	def fit(self, X, y, depth=10, impurity_func='entropy'):
 		"""
 			Function called to generate a univariate decision tree out of a given dataset
 			Args:
@@ -40,10 +42,11 @@ class DecisionTree:
 		self.features_type	= []
 		for i in xrange(0, self.features_count):
 			self.features_type.append(type(X[0][i]).__name__)
-			self.features_set.append(list(set(self.np.array(X)[:,i].tolist())))
+			self.features_set.append(list(set(self.np.array(X)[:,i].astype(self.features_type[i]).tolist())))
 			
+		self.root		= self.node()
 		self.root['indices']	= self.np.arange(0, len(X)).tolist()
-		self.construct(self.root)
+		self.construct(self.root, depth)
 			
 	def impurity_after_split(self, splits):
 		"""
@@ -62,12 +65,13 @@ class DecisionTree:
 		imp_each_split	= []
 		for s in splits:
 			inc_this_split	= float(len(s[0]) + len(s[1]))
-			if inc_this_split == 0:
-				continue
-			class_probs	= [len(s[0])/inc_this_split, len(s[1])/inc_this_split]
-			node_imp	= self.impurity(class_probs)
-			tot_imp		= tot_imp + inc_this_split*node_imp/total_incoming
-			imp_each_split.append(node_imp)
+			if round(inc_this_split, 5) == 0:
+				imp_each_split.append(1.0)
+			else:
+				class_probs	= [len(s[0])/inc_this_split, len(s[1])/inc_this_split]
+				node_imp	= self.impurity(class_probs)
+				tot_imp		= tot_imp + inc_this_split*node_imp/total_incoming
+				imp_each_split.append(node_imp)
 				
 		return tot_imp, imp_each_split
 		
@@ -145,7 +149,7 @@ class DecisionTree:
 
 			# Split generated based on integer values taken
 			# Typically the continuous fields fall in this category
-			if self.features_type[f_no] == 'int':
+			if self.features_type[f_no] == 'int' or self.features_type[f_no] == 'float':
 
 				# Splitting based on the distinct values of the attributes
 				for f_val in self.features_set[f_no]:					
@@ -201,21 +205,57 @@ class DecisionTree:
 					
 		return best_split, best_imp_after_split, best_each_imp_split, best_split_val, best_split_feature_no
 		
-	def construct(self, some_node):
+	def construct(self, some_node, depth):
 		"""
 			Function to construct a subtree from a given node
 			Args:
 				some_node	= node of the tree
 		"""
-		new_split_attr	= self.get_best_split(some_node['indices'])
-		some_node['val'] 	= (new_split_attr[3], new_split_attr[4])
-		some_node['splits']	= []
+		if depth > 0:
+			new_split_attr		= self.get_best_split(some_node['indices'])
+			some_node['val'] 	= (new_split_attr[3], new_split_attr[4])
+			some_node['splits']	= []
 
-		for i in xrange(0, len(new_split_attr[0])):
-			linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
-			some_node['splits'].append(self.node(indices=linear_indices))
-			if round(new_split_attr[2][i], 5) == 0.0:
-				some_node['val']	= 0 if len(new_split_attr[0][i][0]) != 0 else 1
-				continue
-			else:
-				self.construct(some_node['splits'][i])
+			for i in xrange(0, len(new_split_attr[0])):
+				linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
+				some_node['splits'].append(self.node(indices=linear_indices))
+				if round(new_split_attr[2][i], 5) == 0.0 or len(linear_indices) == 1:
+					some_node['splits'][i]['val']	= 0 if len(new_split_attr[0][i][0]) != 0 else 1
+					continue
+				else:
+					print 'going to depth {0}'.format(depth-1)
+					self.construct(some_node['splits'][i], depth-1)
+		else:
+			count_0	= count_1 = 0
+			for i in xrange(0, len(some_node['indices'])):
+				if self.y[i] == 0:
+					count_0 += 1
+				elif self.y[i] == 1:
+					count_1 += 1
+			some_node['val'] = 1 if count_1 > count_0 else 0
+				
+	def get_dataset(self, root_folder):
+		full_path	= self.os.path.join(root_folder, 'data', 'train.csv')
+		raw_data	= self.np.genfromtxt(full_path, delimiter=',', dtype=str)
+		
+		full_x	= []	
+		full_y	= []
+		for i in xrange(0, raw_data.shape[0]):
+			full_x.append(
+				[int(raw_data[i][0]), raw_data[i][1][1:], int(raw_data[i][2]), raw_data[i][3][1:], int(raw_data[i][4]), 
+				 raw_data[i][5][1:], raw_data[i][6][1:], raw_data[i][7][1:], raw_data[i][8][1:], raw_data[i][9][1:], 
+				 int(raw_data[i][10]), int(raw_data[i][11]), int(raw_data[i][12]), raw_data[i][13][1:]]
+				 	)
+			full_y.append(int(raw_data[i][14]))
+			
+		return full_x, full_y
+		
+	def predict(self, X):
+		predictions	= []
+		for i in xrange(0, len(X)):
+			predictions.append(self.traverse(X[i], self.root))
+			
+		return predictions
+		
+	def traverse(self, some_data, some_node):
+		raise NotImplementedError

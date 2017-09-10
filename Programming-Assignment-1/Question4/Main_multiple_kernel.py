@@ -3,16 +3,16 @@ from time import clock
 from sklearn import svm
 from dataloader import get_dataset
 from argparse import ArgumentParser
-from kernels import linear_gram_matrix as lgm
-from kernels import gaussian_gram_matrix as ggm
-from kernels import polynomial_gram_matrix as pgm
+from multi_kernels import MultiKernelheuristic as mkh
+from multi_kernels import MultiKernelfixedrules as mkfr
 from sklearn.model_selection import StratifiedKFold
 
 parser	= ArgumentParser()
 parser.add_argument('--dataroot', required=True, help='root folder for the dataset')
-parser.add_argument('--kernel', required=True, help='kernel : linear | polynomial | gaussian')
-parser.add_argument('--q', type=int, default=2, help='parameter for polynomial kernel')
-parser.add_argument('--sigma', type=float, default=1, help='parameter for gaussian kernel')
+parser.add_argument('--kernel_set', required=True, help='kernel_set : fixed_rules | heuristic')
+parser.add_argument('--gamma0', type=float, help='parameter for linear kernel')
+parser.add_argument('--gamma1', type=float, help='parameter for polynomial kernel')
+parser.add_argument('--gamma2', type=float, help='parameter for gaussian kernel')
 parser.add_argument('--normalize', action='store_true', help='toggle for normalizing the input data')
 opt	= parser.parse_args()
 	
@@ -35,27 +35,22 @@ for tr, va in cross_valid.split(train_x, train_y):
 
 	svm_classifier	= svm.SVC(kernel='precomputed')
 
+	if opt.kernel_set == 'fixed_rules':
+		multi_k	= mkfr(gammas={'linear': opt.gamma0, 'polynomial': opt.gamma1, 'gaussian': opt.gamma2},
+				hyperparameters={'polynomial': 3, 'gaussian': 0.2})
+
+	elif opt.kernel_set == 'heuristic':
+		multi_k	= mkh(hyperparameters={'polynomial': 3, 'gaussian': 0.2})
+
 	t_start	= clock()
-	if opt.kernel == 'linear':
-		tr_gram_matrix	= lgm(tr_x, tr_x)
-		t_pause	= clock()
-		va_gram_matrix	= lgm(va_x, tr_x)
+	tr_gram_matrix	= multi_k.gram_matrix(tr_x, tr_x)
 
-	elif opt.kernel == 'polynomial':
-		tr_gram_matrix	= pgm(tr_x, tr_x, opt.q)
-		t_pause	= clock()
-		va_gram_matrix	= pgm(va_x, tr_x, opt.q)
-
-	elif opt.kernel	== 'gaussian':
-		tr_gram_matrix	= ggm(tr_x, tr_x, opt.sigma)
-		t_pause	= clock()
-		va_gram_matrix	= ggm(va_x, tr_x, opt.sigma)
-
-	t_resume	= clock()
 	svm_classifier.fit(tr_gram_matrix, tr_y)
 	t_stop		= clock()
 	
-	tr_times.append((t_stop - t_resume) + (t_pause - t_start))
+	va_gram_matrix	= multi_k.gram_matrix(va_x, tr_x)
+	
+	tr_times.append((t_stop - t_start))
 
 	tr_predictions	= svm_classifier.predict(tr_gram_matrix)
 	va_predictions	= svm_classifier.predict(va_gram_matrix)
@@ -66,6 +61,5 @@ for tr, va in cross_valid.split(train_x, train_y):
 	tr_accuracies.append(float(round(tr_accuracy, 5)))
 	va_accuracies.append(float(round(va_accuracy, 5)))
 	
-kernel_comb = {'linear': 'linear', 'polynomial': 'polynomial-{0}'.format(opt.q), 'gaussian':'gaussian-{0}'.format(opt.sigma)}
 file_results	= open('results.txt', 'a')
-file_results.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n'.format(kernel_comb[opt.kernel], round(np.mean(tr_accuracy), 4), round(np.std(tr_accuracy), 4), round(np.mean(va_accuracy), 4), round(np.std(va_accuracy), 4), round(np.mean(tr_times), 4)))
+file_results.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n'.format(opt.kernel_set, round(np.mean(tr_accuracy), 4), round(np.std(tr_accuracy), 4), round(np.mean(va_accuracy), 4), round(np.std(va_accuracy), 4), round(np.mean(tr_times), 4)))

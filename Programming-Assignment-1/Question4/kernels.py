@@ -9,7 +9,7 @@ def linear_kernel(x_i, x_j):
 		Returns:
 			linear kernel of x_i and x_j
 	"""
-	return np.dot(x_i, x_j)
+	return np.inner(x_i, x_j)
 	
 def polynomial_kernel(x_i, x_j, q):
 	"""
@@ -23,7 +23,7 @@ def polynomial_kernel(x_i, x_j, q):
 	"""
 	assert type(q) == int, "q is supposed to be an integer"
 	
-	return np.power(np.dot(x_i, x_j) + 1, q)
+	return (np.inner(x_i, x_j) + 1)**q
 	
 def gaussian_kernel(x_i, x_j, sigma):
 	"""
@@ -52,15 +52,9 @@ def linear_gram_matrix(X, Y):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	if X.shape[0] == Y.shape[0]:
-		for i in range(0, X.shape[0]):
-			for j in range(i, X.shape[0]):
-				gram_matrix[i, j]	= gram_matrix[j, i]	= linear_kernel(X[i], Y[j])
-
-	else:
-		for i, x in enumerate(X):
-			for j, y in enumerate(Y):
-				gram_matrix[i, j]	= linear_kernel(x, y)
+	for i, x in enumerate(X):
+		for j, y in enumerate(Y):
+			gram_matrix[i, j]	= linear_kernel(x, y)
 			
 	return gram_matrix
 	
@@ -76,15 +70,9 @@ def polynomial_gram_matrix(X, Y, q):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	if X.shape[0] == Y.shape[0]:
-		for i in range(0, X.shape[0]):
-			for j in range(i, X.shape[0]):
-				gram_matrix[i, j]	= gram_matrix[j, i]	= polynomial_kernel(X[i], Y[j], q)
-
-	else:
-		for i, x in enumerate(X):
-			for j, y in enumerate(Y):
-				gram_matrix[i, j]	= polynomial_kernel(x, y, q)
+	for i, x in enumerate(X):
+		for j, y in enumerate(Y):
+			gram_matrix[i, j]	= polynomial_kernel(x, y, q)
 			
 	return gram_matrix
 				
@@ -100,14 +88,8 @@ def gaussian_gram_matrix(X, Y, sigma):
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform element-wise subtraction on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	if X.shape[0] == Y.shape[0]:
-		for i in range(0, X.shape[0]):
-			for j in range(i, X.shape[0]):
-				gram_matrix[i, j]	= gram_matrix[j, i]	= gaussian_kernel(X[i], Y[j], sigma)
-
-	else:
-		for i, x in enumerate(X):
-			for j, y in enumerate(Y):
-				gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
+	for i, x in enumerate(X):
+		for j, y in enumerate(Y):
+			gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
 			
 	return gram_matrix

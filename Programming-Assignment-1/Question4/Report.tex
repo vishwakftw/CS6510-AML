@@ -12,6 +12,13 @@
 
 \begin{document}
 \maketitle
+\section*{Dataset choices}
+\begin{itemize}
+\item The missing values in the dataset were replaced by \(-1\).
+\item The categorical data were converted into ordinals based on the order specified in the \texttt{README} file. 
+\item After the conversion of all values: the dataset was normalized to \(\mu= 0\) and \(\sigma=1\) to ensure better spread of positive and negative values.
+\end{itemize}
+
 \section*{Best Value for Hyperparameters for the \\
 Gaussian and Polynomial kernels}
 \begin{flushleft}
@@ -28,11 +35,42 @@ I conducted 50 experiments for finding a sub-optimal hyperparameter \(\sigma\) f
 \includegraphics[width=0.95\textwidth]{./images/polynomial.eps}
 \end{minipage}
 \end{figure}
+\end{flushleft}
 
+\section*{Best Results for single kernel problems and times taken}
+\begin{flushleft}
 From this I chose, \(q_{\text{opt}} = 3\) and \(\sigma_{\text{opt}} = 0.2\). The Best Accuracies where compared alongside each other, and Gaussian kernel performed best. Below is a bar chart:
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\linewidth]{./images/comparison_3.eps}
+\includegraphics[width=0.5\linewidth]{./images/comparison_3.eps}
 \end{figure}
+
+The average time taken to train one cross-validation fold per method is tabulated below:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Method & Time in seconds \\
+\hline
+\hline
+Linear Kernel & \(\approx 75\) \\
+\hline
+Polynomial Kernel with \(q = 3\) & \(\approx 79\) \\
+\hline
+Gaussian kernel with \(\sigma = 0.2\) & \(\approx 300\) \\
+\hline
+\end{tabular}
+\end{center}
+\end{flushleft}
+
+\section*{Multiple Kernel Learning}
+\subsection*{Fixed Rules}
+\begin{flushleft}
+In Multiple Kernel Learning with fixed rules, it is required to weigh the kernel in a convex combination-fashion. In my study, after infering the results from the single kernel, I chose the following convex combination:
+\begin{equation*}
+\hat{k} = 0.25*k_{LIN} + 0.35*k_{POL} + 0.4*k_{GAU}
+\end{equation*}
+
+The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best results for single kernel i.e., \(3\) and \(0.2\) respectively.
 \end{flushleft}
 \end{document}

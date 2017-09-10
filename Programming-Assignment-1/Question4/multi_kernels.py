@@ -5,7 +5,7 @@ from kernels import linear_gram_matrix as lgm
 from kernels import gaussian_gram_matrix as ggm
 from kernels import polynomial_gram_matrix as pgm
 
-class MultiKernelFR(object):
+class MultiKernelfixedrules(object):
 	"""
 		Class that contains the implementation of Multi Kernel with Fixed Rules
 	"""
@@ -16,10 +16,9 @@ class MultiKernelFR(object):
 				gammas		= The static weights for each class
 				hyperparameters	= The values for the "q" and "sigma" in polynomial and Gaussian kernel respectively
 		"""
-		super(MultiKernelFR, self).__init__()
-		assert sum(self.gammas) == 1, "gammas must add up to 1"
-		self.gammas	= gammas
-		self.hyparams	= hyperparameters
+		assert sum(gammas.values()) == 1, "gammas must add up to 1"
+		self.gammas		= gammas
+		self.hyperparameters	= hyperparameters
 		
 	def __call__(self, x_i, x_j):
 		"""
@@ -33,8 +32,8 @@ class MultiKernelFR(object):
 		K	= 0
 
 		K	= K + self.gammas['linear'] * lk(x_i=x_i, x_j=x_j)
-		K	= K + self.gammas['gaussian'] * gk(x_i=x_i, x_j=x_j, sigma=self.hyparams['gaussian'])
-		K	= K + self.gammas['polynomial'] * pk(x_i=x_i, x_j=x_j, q=self.hyparams['polynomial'])
+		K	= K + self.gammas['gaussian'] * gk(x_i=x_i, x_j=x_j, sigma=self.hyperparameters['gaussian'])
+		K	= K + self.gammas['polynomial'] * pk(x_i=x_i, x_j=x_j, q=self.hyperparameters['polynomial'])
 		
 		return K
 		
@@ -56,7 +55,7 @@ class MultiKernelFR(object):
 				
 		return grm_mtrx
 		
-def MultiKernelH(object):
+def MultiKernelheuristic(object):
 	"""
 		Class that contains the implementation of Multi Kernel with Heuristics
 	"""
@@ -69,18 +68,49 @@ def MultiKernelH(object):
 				Y		= Outputs		: numpy.ndarray of shape (n_points, )
 		
 		"""
-		from numpy import full
 		self.hyperparameters	= hyperparameters
-		A_linear	= (lgm(X, X)*np.dot(Y, Y.T)).sum()/(Y.shape[0]*np.sqrt((lgm(X, X)*lgm(X, X)).sum()))
-		A_gaussian	= (ggm(X, X)*np.dot(Y, Y.T)).sum()/(Y.shape[0]*np.sqrt((ggm(X, X)*ggm(X, X)).sum()))
-		A_polynomial	= (pgm(X, X)*np.dot(Y, Y.T)).sum()/(Y.shape[0]*np.sqrt((pgm(X, X)*pgm(X, X)).sum()))
 
-		eta_linear	= A_linear/(A_linear + A_gaussian + A_polynomial)
-		eta_gaussian	= A_gaussian/(A_linear + A_gaussian + A_polynomial)
-		eta_polynomial	= A_polynomial/(A_linear + A_gaussian + A_polynomial)
+		g_matrices					= {'linear': lgm, 'polynomial': pgm, 'gaussian': ggm}
+		eta_linear, eta_polynomial, eta_gaussian	= get_etas(g_matrices, X, Y)
 		
-		self.gammas	= {'linear': eta_linear, 'gaussian': eta_gaussian, 'polynomial': eta_polynomial}
+		self.gammas		= {'linear': eta_linear, 'gaussian': eta_gaussian, 'polynomial': eta_polynomial}
 
+	def A(g_matrix, y):
+		"""
+			Function to calculate the value of A
+			Args:
+				g_matrix		= Gram matrix		: numpy.ndarray of shape (n_points, n_points)
+				y			= Output values		: numpy.ndarray of shape (n_points, )
+			Returns:
+				scalar value : A(K, yyT)
+		"""
+		from numpy import outer
+		ret_val	= g_matrix*outer(y, y).sum()
+		ret_val	= ret_val/y.shape[0]
+		ret_val	= ret_val/np.sqrt(g_matrix*g_matrix.sum())
+		
+		return ret_val
+		
+	def get_etas(g_matrices, X, Y):
+		"""
+			Function to calculate the eta values
+			Args:
+				g_matrices		= Dictionary with function objects
+				X			= Input matrix		: numpy.ndarray of shape (n_points, n_features)
+				Y			= Output matrix		: numpy.ndarray of shape (n_points, )
+			Returns:
+				3-tuple of etas
+		"""
+		eta_linear	= A(g_matrices['linear'](X, X), Y)
+		eta_polynomial	= A(g_matrices['polynomial'](X, X), Y)
+		eta_gaussian	= A(g_matrices['gaussian'](X, X), Y)
+		
+		eta_linear	= eta_linear/(eta_linear + eta_polynomial + eta_gaussian)
+		eta_polynomial	= eta_polynomial/(eta_linear + eta_polynomial + eta_gaussian)
+		eta_gaussian	= eta_gaussian/(eta_linear + eta_polynomial + eta_gaussian)
+		
+		return eta_linear, eta_polynomial, eta_gaussian
+		
 	def __call__(self, x_i, x_j):
 		"""
 			Function to calculate the kernel based on the inputs
@@ -93,8 +123,8 @@ def MultiKernelH(object):
 		K	= 0
 
 		K	= K + self.gammas['linear'] * lk(x_i=x_i, x_j=x_j)
-		K	= K + self.gammas['gaussian'] * gk(x_i=x_i, x_j=x_j, sigma=self.hyparams['gaussian'])
-		K	= K + self.gammas['polynomial'] * pk(x_i=x_i, x_j=x_j, q=self.hyparams['polynomial'])
+		K	= K + self.gammas['gaussian'] * gk(x_i=x_i, x_j=x_j, sigma=self.hyperparameters['gaussian'])
+		K	= K + self.gammas['polynomial'] * pk(x_i=x_i, x_j=x_j, q=self.hyperparameters['polynomial'])
 		
 		return K
 		
