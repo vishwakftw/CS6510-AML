@@ -54,7 +54,7 @@ def linear_gram_matrix(X, Y):
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
 	if X.shape[0] == Y.shape[0]:
 		for i in range(0, X.shape[0]):
-			for j in range(0, X.shape[0] - i):
+			for j in range(i, X.shape[0]):
 				gram_matrix[i, j]	= gram_matrix[j, i]	= linear_kernel(X[i], Y[j])
 
 	else:
@@ -78,7 +78,7 @@ def polynomial_gram_matrix(X, Y, q):
 	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
 	if X.shape[0] == Y.shape[0]:
 		for i in range(0, X.shape[0]):
-			for j in range(0, X.shape[0] - i):
+			for j in range(i, X.shape[0]):
 				gram_matrix[i, j]	= gram_matrix[j, i]	= polynomial_kernel(X[i], Y[j], q)
 
 	else:

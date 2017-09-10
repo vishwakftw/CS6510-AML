@@ -1,4 +1,5 @@
 import numpy as np
+from time import clock
 from sklearn import svm
 from dataloader import get_dataset
 from argparse import ArgumentParser
@@ -22,29 +23,42 @@ cross_valid	= StratifiedKFold(n_splits=5)
 
 tr_accuracies	= []
 va_accuracies	= []
+tr_times	= []
 
 for tr, va in cross_valid.split(train_x, train_y):
 	
-	print('Started cross validation split: {0}'.format(len(tr_accuracies) + 1))	
+	print('Started cross validation split: {0}'.format(len(tr_accuracies) + 1))
+	print('Ratio: {0}/{1} :: TR/VA'.format(tr.shape[0], va.shape[0]))
 
 	tr_x, va_x	= train_x[tr], train_x[va]
 	tr_y, va_y	= train_y[tr], train_y[va]
 
 	svm_classifier	= svm.SVC(kernel='precomputed')
 
+	t_start	= clock()
 	if opt.kernel == 'linear':
 		tr_gram_matrix	= lgm(tr_x, tr_x)
+		t_pause	= clock()
 		va_gram_matrix	= lgm(va_x, tr_x)
 
 	elif opt.kernel == 'polynomial':
+		print('Calculting GM')
 		tr_gram_matrix	= pgm(tr_x, tr_x, opt.q)
+		t_pause	= clock()
+		print('Calculting GM')
 		va_gram_matrix	= pgm(va_x, tr_x, opt.q)
 
 	elif opt.kernel	== 'gaussian':
 		tr_gram_matrix	= ggm(tr_x, tr_x, opt.sigma)
+		t_pause	= clock()
 		va_gram_matrix	= ggm(va_x, tr_x, opt.sigma)
 
+	t_resume	= clock()
 	svm_classifier.fit(tr_gram_matrix, tr_y)
+	t_stop		= clock()
+	
+	tr_times.append((t_stop - t_resume) + (t_pause - t_start))
+
 	tr_predictions	= svm_classifier.predict(tr_gram_matrix)
 	va_predictions	= svm_classifier.predict(va_gram_matrix)
 
@@ -56,4 +70,4 @@ for tr, va in cross_valid.split(train_x, train_y):
 	
 kernel_comb = {'linear': 'linear', 'polynomial': 'polynomial-{0}'.format(opt.q), 'gaussian':'gaussian-{0}'.format(opt.sigma)}
 file_results	= open('results.txt', 'a')
-file_results.write('{0}\t{1}\t{2}\n'.format(kernel_comb[opt.kernel], np.mean(tr_accuracy), np.mean(va_accuracy)))
+file_results.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n'.format(kernel_comb[opt.kernel], round(np.mean(tr_accuracy), 4), round(np.std(tr_accuracy), 4), round(np.mean(va_accuracy), 4), round(np.std(va_accuracy), 4), round(np.mean(tr_times), 4)))
