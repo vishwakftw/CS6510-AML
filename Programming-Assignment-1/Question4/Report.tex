@@ -68,9 +68,9 @@ Gaussian kernel with \(\sigma = 0.2\) & \(\approx 300\) \\
 \begin{flushleft}
 In Multiple Kernel Learning with fixed rules, it is required to weigh the kernel in a convex combination-fashion. In my study, after infering the results from the single kernel, I chose the following convex combination:
 \begin{equation*}
-\hat{k} = 0.25*k_{LIN} + 0.35*k_{POL} + 0.4*k_{GAU}
+\hat{k} = 0.2*k_{LIN} + 0.3*k_{POL} + 0.5*k_{GAU}
 \end{equation*}
 
-The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best results for single kernel i.e., \(3\) and \(0.2\) respectively.
+The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best results for single kernel i.e., \(3\) and \(0.2\) respectively. I observed that the results with multiple kernel learning is not better than what was obtained using a single Gaussian, which can be attributed to the state of the dataset. The average validation accuracy achieved was \(79.61\%\). 
 \end{flushleft}
 \end{document}

@@ -40,7 +40,7 @@ for tr, va in cross_valid.split(train_x, train_y):
 				hyperparameters={'polynomial': 3, 'gaussian': 0.2})
 
 	elif opt.kernel_set == 'heuristic':
-		multi_k	= mkh(hyperparameters={'polynomial': 3, 'gaussian': 0.2})
+		multi_k	= mkh(hyperparameters={'polynomial': 3, 'gaussian': 0.2}, X=tr_x, Y=tr_y)
 
 	t_start	= clock()
 	tr_gram_matrix	= multi_k.gram_matrix(tr_x, tr_x)

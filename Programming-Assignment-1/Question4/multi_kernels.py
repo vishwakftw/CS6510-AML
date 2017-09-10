@@ -55,7 +55,7 @@ class MultiKernelfixedrules(object):
 				
 		return grm_mtrx
 		
-def MultiKernelheuristic(object):
+class MultiKernelheuristic(object):
 	"""
 		Class that contains the implementation of Multi Kernel with Heuristics
 	"""
@@ -71,11 +71,28 @@ def MultiKernelheuristic(object):
 		self.hyperparameters	= hyperparameters
 
 		g_matrices					= {'linear': lgm, 'polynomial': pgm, 'gaussian': ggm}
-		eta_linear, eta_polynomial, eta_gaussian	= get_etas(g_matrices, X, Y)
+		eta_linear, eta_polynomial, eta_gaussian	= self.get_etas(g_matrices, X, Y)
 		
 		self.gammas		= {'linear': eta_linear, 'gaussian': eta_gaussian, 'polynomial': eta_polynomial}
 
-	def A(g_matrix, y):
+	def __call__(self, x_i, x_j):
+		"""
+			Function to calculate the kernel based on the inputs
+			Args:
+				x_i		= Input1	: numpy.ndarray of shape (n_features, )
+				x_j		= Input2	: numpy.ndarray of shape (n_features, )
+			Returns:
+				K(X, Y)
+		"""
+		K	= 0
+
+		K	= K + self.gammas['linear'] * lk(x_i=x_i, x_j=x_j)
+		K	= K + self.gammas['gaussian'] * gk(x_i=x_i, x_j=x_j, sigma=self.hyperparameters['gaussian'])
+		K	= K + self.gammas['polynomial'] * pk(x_i=x_i, x_j=x_j, q=self.hyperparameters['polynomial'])
+		
+		return K
+
+	def A(self, g_matrix, y):
 		"""
 			Function to calculate the value of A
 			Args:
@@ -84,14 +101,14 @@ def MultiKernelheuristic(object):
 			Returns:
 				scalar value : A(K, yyT)
 		"""
-		from numpy import outer
-		ret_val	= g_matrix*outer(y, y).sum()
+		from numpy import outer, sqrt
+		ret_val	= (g_matrix*outer(y, y)).sum()
 		ret_val	= ret_val/y.shape[0]
-		ret_val	= ret_val/np.sqrt(g_matrix*g_matrix.sum())
+		ret_val	= ret_val/sqrt((g_matrix*g_matrix).sum())
 		
 		return ret_val
 		
-	def get_etas(g_matrices, X, Y):
+	def get_etas(self, g_matrices, X, Y):
 		"""
 			Function to calculate the eta values
 			Args:
@@ -101,9 +118,9 @@ def MultiKernelheuristic(object):
 			Returns:
 				3-tuple of etas
 		"""
-		eta_linear	= A(g_matrices['linear'](X, X), Y)
-		eta_polynomial	= A(g_matrices['polynomial'](X, X), Y)
-		eta_gaussian	= A(g_matrices['gaussian'](X, X), Y)
+		eta_linear	= self.A(g_matrices['linear'](X, X), Y)
+		eta_polynomial	= self.A(g_matrices['polynomial'](X, X, self.hyperparameters['polynomial']), Y)
+		eta_gaussian	= self.A(g_matrices['gaussian'](X, X, self.hyperparameters['gaussian']), Y)
 		
 		eta_linear	= eta_linear/(eta_linear + eta_polynomial + eta_gaussian)
 		eta_polynomial	= eta_polynomial/(eta_linear + eta_polynomial + eta_gaussian)
