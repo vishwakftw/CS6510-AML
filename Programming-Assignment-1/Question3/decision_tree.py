@@ -10,16 +10,17 @@ class DecisionTree:
 		self.np		= numpy
 		self.root	= self.node()
 		
-	def node(self, split=None, val=None):
+	def node(self, splits=None, val=None, indices=None):
 		"""
 			Typical node for a tree
 			Args:
 				split		= List of splits (Generalize for n-way split)
 				val		= Value of the Node. Defaults to None
+				indices		= List of indices of inputs coming to that node
 			Returns:
 				Node dictionary
 		"""
-		return {'split': split, 'val': val}
+		return {'splits': splits, 'val': val, 'indices': indices}
 				
 	def fit(self, X, y, impurity_func='entropy'):
 		"""
@@ -36,8 +37,13 @@ class DecisionTree:
 		
 		self.features_count	= len(X[0])
 		self.features_set	= []
+		self.features_type	= []
 		for i in xrange(0, self.features_count):
+			self.features_type.append(type(X[0][i]).__name__)
 			self.features_set.append(list(set(self.np.array(X)[:,i].tolist())))
+			
+		self.root['indices']	= self.np.arange(0, len(X)).tolist()
+		self.construct(self.root)
 			
 	def impurity_after_split(self, splits):
 		"""
@@ -52,15 +58,18 @@ class DecisionTree:
 			for cl in s:
 				total_incoming	+= len(cl)
 
-		imp	= 0.0
+		tot_imp	= 0.0
+		imp_each_split	= []
 		for s in splits:
 			inc_this_split	= float(len(s[0]) + len(s[1]))
 			if inc_this_split == 0:
 				continue
 			class_probs	= [len(s[0])/inc_this_split, len(s[1])/inc_this_split]
-			imp		= imp + inc_this_split*self.impurity(class_probs)/total_incoming
+			node_imp	= self.impurity(class_probs)
+			tot_imp		= tot_imp + inc_this_split*node_imp/total_incoming
+			imp_each_split.append(node_imp)
 				
-		return imp
+		return tot_imp, imp_each_split
 		
 	def impurity(self, class_probs):
 		"""
@@ -78,7 +87,7 @@ class DecisionTree:
 				if round(cp, 5) == 0.0:
 					val	-= 0
 				else:
-					val	-= self.np.log(cp)*cp
+					val	-= self.np.log2(cp)*cp
 
 		elif self.impurity_func == 'gini':
 			for cp in class_probs:
@@ -86,7 +95,7 @@ class DecisionTree:
 			
 		return val
 		
-	def make_split(self, feature_no, value=None):
+	def make_split(self, feature_no, X_indices, value=None):
 		"""
 			Function to make a split
 			Args:
@@ -95,19 +104,19 @@ class DecisionTree:
 			Returns:
 				3D-list of shape [n_splits, n_points_in_each_class, 2] representing the indexes of points per class
 		"""
-		if value is None:
+		if self.features_type[feature_no] == 'str':
 			splits = []
 			for i in xrange(0, len(self.features_set[feature_no])):
 				splits.append([[], []])
 
-			for i in xrange(0, len(self.X)):
+			for i in X_indices:
 				for j in xrange(0, len(self.features_set[feature_no])):
 					if self.features_set[feature_no][j] == self.X[i][feature_no]:
 						splits[j][self.y[i]].append(i)
 						
 		else:
 			splits	= [[[],[]], [[],[]]]
-			for i in xrange(0, len(self.X)):
+			for i in X_indices:
 				if self.X[i][feature_no] < value:
 					splits[0][self.y[i]].append(i)
 				else:
@@ -115,16 +124,20 @@ class DecisionTree:
 					
 		return splits
 		
-	def get_best_split(self):
+	def get_best_split(self, X_indices):
 		"""
 			Function to get the best split at a given node based on the some splitting techniques
 			Args:
 				No args
 			Returns:
-				Best achieved impurity after split, Best split, and if the best split was achieved on a
-				continuous attribute, then that splitting value
+				-> Best split
+				-> Best impurity after split (Total impurity)
+				-> Best impurity at each split node
+				-> Best splitting val (None for categorial data, otherwise the value used for the binary split)
+				-> Best feature to split
 		"""
 		best_imp_after_split	= 1.1
+		best_each_imp_split	= None
 		best_split		= None
 		best_split_val		= None
 		best_split_feature_no	= -1
@@ -132,16 +145,17 @@ class DecisionTree:
 
 			# Split generated based on integer values taken
 			# Typically the continuous fields fall in this category
-			if type(self.X[0][f_no]).__name__ == 'int':
+			if self.features_type[f_no] == 'int':
 
 				# Splitting based on the distinct values of the attributes
 				for f_val in self.features_set[f_no]:					
-					cur_split	= self.make_split(f_no, f_val)
-					cur_imp_split	= self.impurity_after_split(cur_split)
+					cur_split				= self.make_split(f_no, X_indices, f_val)
+					cur_imp_split, cur_each_imp_split	= self.impurity_after_split(cur_split)
 					
 					if best_imp_after_split > cur_imp_split:
 						best_split		= cur_split
 						best_imp_after_split	= cur_imp_split
+						best_each_imp_split	= cur_each_imp_split
 						best_split_val		= f_val
 						best_split_feature_no	= f_no
 						
@@ -149,37 +163,59 @@ class DecisionTree:
 				for i in xrange(0, len(self.features_set[f_no])):
 					for j in xrange(i, len(self.features_set[f_no])):
 						f_val		= (self.features_set[f_no][i] + self.features_set[f_no][j])/2.0
-						cur_split	= self.make_split(f_no, f_val)
-						cur_imp_split	= self.impurity_after_split(cur_split)
+						cur_split				= self.make_split(f_no, X_indices, f_val)
+						cur_imp_split, cur_each_imp_split	= self.impurity_after_split(cur_split)
 						
 						if best_imp_after_split > cur_imp_split:
 							best_split		= cur_split
 							best_imp_after_split	= cur_imp_split
+							best_each_imp_split	= cur_each_imp_split
 							best_split_val		= f_val
 							best_split_feature_no	= f_no
 							
 				# Splitting based on total average of all distinct values of the attributes
 				f_val	= 0.0
 				f_val	= self.np.mean(self.features_set[f_no])
-				cur_split	= self.make_split(f_no, f_val)
-				cur_imp_split	= self.impurity_after_split(cur_split)
+				cur_split				= self.make_split(f_no, X_indices, f_val)
+				cur_imp_split, cur_each_imp_split	= self.impurity_after_split(cur_split)
 				
 				if best_imp_after_split > cur_imp_split:
 					best_split		= cur_split
 					best_imp_after_split	= cur_imp_split
+					best_each_imp_split	= cur_each_imp_split
 					best_split_val		= f_val	
 					best_split_feature_no	= f_no			
 
 			# Split generated based on string type attributes
 			# Typically categorical data falls in this category
-			elif type(self.X[0][f_no]).__name__ == 'str':
-				cur_split	= self.make_split(f_no)
-				cur_imp_split	= self.impurity_after_split(cur_split)
+			elif self.features_type[f_no] == 'str':
+				cur_split				= self.make_split(f_no, X_indices)
+				cur_imp_split, cur_each_imp_split	= self.impurity_after_split(cur_split)
 				
 				if best_imp_after_split > cur_imp_split:
 					best_split		= cur_split
 					best_imp_after_split	= cur_imp_split
+					best_each_imp_split	= cur_each_imp_split
 					best_split_val		= None
 					best_split_feature_no	= f_no
 					
-		return best_imp_after_split, best_split, best_split_val, best_split_feature_no
+		return best_split, best_imp_after_split, best_each_imp_split, best_split_val, best_split_feature_no
+		
+	def construct(self, some_node):
+		"""
+			Function to construct a subtree from a given node
+			Args:
+				some_node	= node of the tree
+		"""
+		new_split_attr	= self.get_best_split(some_node['indices'])
+		some_node['val'] 	= (new_split_attr[3], new_split_attr[4])
+		some_node['splits']	= []
+
+		for i in xrange(0, len(new_split_attr[0])):
+			linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
+			some_node['splits'].append(self.node(indices=linear_indices))
+			if round(new_split_attr[2][i], 5) == 0.0:
+				some_node['val']	= 0 if len(new_split_attr[0][i][0]) != 0 else 1
+				continue
+			else:
+				self.construct(some_node['splits'][i])
