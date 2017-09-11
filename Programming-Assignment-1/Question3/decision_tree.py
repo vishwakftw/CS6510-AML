@@ -43,56 +43,71 @@ class DecisionTree:
 		self.features_type	= []
 		for i in xrange(0, self.features_count):
 			self.features_type.append(type(X[0][i]).__name__)
+			
 			if type(X[0][i]).__name__ == 'str':
 				self.features_set[i]	= list(set(self.np.array(X)[:,i].astype(self.features_type[i]).tolist()))
+			
 			elif type(X[0][i]).__name__ == 'int':
-				self.features_bins[i]	= []
+
 				if i == 0:
+					my_bins		= []
 					bin_size	= 10
 					low		= 16
 					high		= 90
 					while low < high:
-						self.features_bins[i].append([low, low + high])
-						low	= low + high
+						my_bins.append([low, low + bin_size])
+						low	= low + bin_size
+					self.features_bins[i]	= my_bins
 
 				elif i == 2:
+					my_bins		= []
 					bin_size	= 77600
 					low		= 19000
 					high		= 1185000
 					while low < high:
-						self.features_bins[i].append([low, low + high])
-						low	= low + high
+						my_bins.append([low, low + bin_size])
+						low	= low + bin_size
+					self.features_bins[i]	= my_bins
 
 				elif i == 4:
 					self.features_bins[i]	= [[1, 3], [3, 5], [5, 8], [8, 11], [11, 13], [13, 17]]
 
 				elif i == 10:
+					my_bins		= []
 					bin_size	= 10000
 					low		= 0
 					high		= 100000
 					while low < high:
-						self.features_bins[i].append([low, low + high])
-						low	= low + high
+						my_bins.append([low, low + bin_size])
+						low	= low + bin_size
+					self.features_bins[i]	= my_bins
 				
 				elif i == 11:
+					my_bins		= []
 					bin_size	= 400
 					low		= 0
 					high		= 4400
 					while low < high:
-						self.features_bins[i].append([low, low + high])
-						low	= low + high
-						
+						my_bins.append([low, low + bin_size])
+						low	= low + bin_size
+					self.features_bins[i]	= my_bins	
+
 				elif i == 12:
+					my_bins		= []
 					bin_size	= 10
 					low		= 0
 					high		= 100
 					while low < high:
-						self.features_bins[i].append([low, low + high])
-						low	= low + high
+						my_bins.append([low, low + bin_size])
+						low	= low + bin_size
+					self.features_bins[i]	= my_bins
 				
 		self.root		= self.node()
 		self.root['indices']	= self.np.arange(0, len(X)).tolist()
-		self.construct(self.root, depth)
+		self.construct(self.root, depth, self.np.arange(0, 14).tolist())
+		self.remove_indices(self.root)
+		del self.np
+		del self.os
 			
 	def impurity_after_split(self, splits):
 		"""
@@ -145,18 +160,18 @@ class DecisionTree:
 			
 		return val
 		
-	def make_split(self, feature_no, X_indices, value=None):
+	def make_split(self, feature_no, X_indices):
 		"""
 			Function to make a split
 			Args:
 				feature_no	= the index of the feature
-				value		= If the feature is a real value, then this will facilitate the 2-way split (< or otherwise)
+				X_indices	= the list of indices
 			Returns:
-				3D-list of shape [n_splits, n_points_in_each_class, 2] representing the indexes of points per class
+				3D-list of shape
 		"""
 		if self.features_type[feature_no] == 'str':
 			splits = []
-			for i in xrange(0, len(self.features_set[feature_no])):
+			for _ in xrange(0, len(self.features_set[feature_no])):
 				splits.append([[], []])
 
 			for i in X_indices:
@@ -173,10 +188,9 @@ class DecisionTree:
 				for j in xrange(len(self.features_bins[feature_no])-1, -1, -1):
 					if self.X[i][feature_no] >= self.features_bins[feature_no][j][0] and self.X[i][feature_no] < self.features_bins[feature_no][j][1]:
 						splits[j][self.y[i]].append(i)
-						break
 		return splits
 		
-	def get_best_split(self, X_indices):
+	def get_best_split(self, X_indices, given_features):
 		"""
 			Function to get the best split at a given node based on the some splitting techniques
 			Args:
@@ -192,48 +206,63 @@ class DecisionTree:
 		best_each_imp_split	= None
 		best_split		= None
 		best_split_feature_no	= -1
-		for f_no in xrange(0, self.features_count):
-			print "At feature number : {0}".format(f_no)
+		given_features		= self.np.random.permutation(given_features).tolist()
+		for f_no in xrange(0, len(given_features)):
 			# Split generated based on integer values taken
 			# Typically the continuous fields fall in this category
 			# Continuous values are bins
 						
 			# Split generated based on string type attributes
 			# Typically categorical data falls in this category
-			cur_split				= self.make_split(f_no, X_indices)
+			cur_split				= self.make_split(given_features[f_no], X_indices)
 			cur_imp_split, cur_each_imp_split	= self.impurity_after_split(cur_split)
 				
 			if best_imp_after_split > cur_imp_split:
 				best_split		= cur_split
 				best_imp_after_split	= cur_imp_split
 				best_each_imp_split	= cur_each_imp_split
-				best_split_feature_no	= f_no
-					
-		return best_split, best_imp_after_split, best_each_imp_split, best_split_feature_no
+				best_split_feature_no	= given_features[f_no]
 		
-	def construct(self, some_node, depth):
+		rem_features	= []
+		for f in given_features:
+			if f != best_split_feature_no:
+				rem_features.append(f)
+					
+		return best_split, best_imp_after_split, best_each_imp_split, best_split_feature_no, rem_features
+		
+	def construct(self, some_node, depth, available_features):
 		"""
 			Function to construct a subtree from a given node
 			Args:
-				some_node	= node of the tree
+				some_node		= node of the tree
+				depth			= depth of the tree
+				available_features	= available features to check for
 		"""
 		if depth > 0:
-			new_split_attr		= self.get_best_split(some_node['indices'])
-			some_node['val'] 	= (new_split_attr[3], self.features_type[new_split_attr[3]])
-			some_node['splits']	= []
+			if len(available_features) == 0:
+				count_0 = count_1 = 0
+				for i in xrange(0, len(some_node['indices'])):
+					if self.y[i] == 0:
+						count_0	+= 1
+					elif self.y[i] == 1:
+						count_1 += 1
+				some_node['val'] = 1 if count_1 > count_0 else 0
+				if len(some_node['indices']) == 0:
+					some_node['val'] = 1 if self.np.random.randint(1, 1000) % 5 == 3 else 0
+			else:	
+				new_split_attr		= self.get_best_split(some_node['indices'], available_features)
+				some_node['val'] 	= (new_split_attr[3], self.features_type[new_split_attr[3]])
+				some_node['splits']	= []
 
-			for i in xrange(0, len(new_split_attr[0])):
-				linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
-				some_node['splits'].append(self.node(indices=linear_indices))
-				if round(new_split_attr[2][i], 5) == 0.0 or len(linear_indices) == 1:
+				for i in xrange(0, len(new_split_attr[0])):
+					linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
+					some_node['splits'].append(self.node(indices=linear_indices))
+	
+				for i in xrange(0, len(new_split_attr[0])):
 					if round(new_split_attr[2][i], 5) == 0.0:
 						some_node['splits'][i]['val']	= 0 if len(new_split_attr[0][i][0]) != 0 else 1
-					if len(linear_indices) == 1:
-						some_node['splits'][i]['val']	= self.y[linear_indices[0]]
-					continue
-				else:
-					print 'going to depth {0}'.format(depth-1)
-					self.construct(some_node['splits'][i], depth-1)
+					else:
+						self.construct(some_node['splits'][i], depth-1, new_split_attr[4])
 		else:
 			count_0	= count_1 = 0
 			for i in xrange(0, len(some_node['indices'])):
@@ -242,6 +271,9 @@ class DecisionTree:
 				elif self.y[i] == 1:
 					count_1 += 1
 			some_node['val'] = 1 if count_1 > count_0 else 0
+			if len(some_node['indices']) == 0:
+				some_node['val'] = 1 if self.np.random.randint(1, 1000) % 5 == 3 else 0
+				
 				
 	def get_dataset(self, root_folder, filename):
 		"""
@@ -315,11 +347,19 @@ class DecisionTree:
 						index = i
 						break
 				
-			else:
+			elif some_node['val'][1] == 'int':
 				index	= None
 				for i in xrange(0, len(self.features_bins[some_node['val'][0]])):
 					if some_data[some_node['val'][0]] >= self.features_bins[some_node['val'][0]][i][0] and some_data[some_node['val'][0]] < self.features_bins[some_node['val'][0]][i][1] :
 						index = i
 						break
 
-			return self.traverse(some_data, some_node['splits'][i])			
+			return self.traverse(some_data, some_node['splits'][index])
+			
+	def remove_indices(self, some_node):
+		if some_node['splits'] is not None:
+			for s in some_node['splits']:
+				self.remove_indices(s)
+		elif some_node['splits'] is None:
+			some_node.pop('splits', None)
+		some_node.pop('indices', None)
