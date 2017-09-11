@@ -122,10 +122,12 @@ class MultiKernelheuristic(object):
 		eta_polynomial	= self.A(g_matrices['polynomial'](X, X, self.hyperparameters['polynomial']), Y)
 		eta_gaussian	= self.A(g_matrices['gaussian'](X, X, self.hyperparameters['gaussian']), Y)
 		
-		eta_linear	= eta_linear/(eta_linear + eta_polynomial + eta_gaussian)
-		eta_polynomial	= eta_polynomial/(eta_linear + eta_polynomial + eta_gaussian)
-		eta_gaussian	= eta_gaussian/(eta_linear + eta_polynomial + eta_gaussian)
+		sum_etas	= (eta_linear + eta_polynomial + eta_gaussian)
+		eta_linear	= eta_linear/sum_etas
+		eta_polynomial	= eta_polynomial/sum_etas
+		eta_gaussian	= eta_gaussian/sum_etas
 		
+		print('{0}\t{1}\t{2}'.format(eta_linear, eta_polynomial, eta_gaussian))
 		return eta_linear, eta_polynomial, eta_gaussian
 		
 	def __call__(self, x_i, x_j):

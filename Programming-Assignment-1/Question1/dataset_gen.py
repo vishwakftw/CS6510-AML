@@ -12,10 +12,29 @@ def get_random(n_points, n_params, param_range=[0, 100], class_range=[0, 1]):
 			numpy.ndarray of shape [n_points, n_params + 1]
 	"""
 	X	= np.random.randint(low=param_range[0],	high=param_range[1] + 1, size=(n_points, n_params))
+
+	while check_generated(X)[0] == False:
+		X	= np.random.randint(low=param_range[0],	high=param_range[1] + 1, size=(n_points, n_params))
+
 	Y	= np.random.randint(low=class_range[0], high=class_range[1] + 1, size=(n_points)).reshape((n_points, 1))
 	
 	D	= np.concatenate((X, Y), axis=1)
 	return D
+
+def check_generated(X):
+	"""
+		Function to check if any two points are the same.
+		Args:
+			X		: numpy.ndarray representing inputs
+		Returns:
+			boolean value
+	"""
+	for i in range(0, X.shape[0]):
+		for j in range(i, X.shape[0]):
+			if (X[i] == X[j]).all() == True and i != j:
+				return (False, (i,j))
+		
+	return (True, None)
 	
 def get_split(dset, train_split=0.8):
 	"""
@@ -60,4 +79,4 @@ def get_dataset(n_pts, n_params, prm_rnge=[0, 100], clss_rnge=[0, 1], tr_splt=0.
 		
 	if save_splts == True:
 		np.savetxt("train_split.csv", tr_dset, delimiter=',', fmt='%d')
-		np.savetxt("test_split.csv", te_dset, delimiter=',', fmt='%d')	
+		np.savetxt("test_split.csv", te_dset, delimiter=',', fmt='%d')

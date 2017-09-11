@@ -11,6 +11,10 @@ class DecisionTree:
 		self.np		= numpy
 		self.os		= os
 		self.root	= self.node()
+		self.randomizer	= numpy.random.randint
+		self.path_split	= os.path.split
+		self.file_get	= numpy.genfromtxt
+		self.joiner	= os.path.join
 		
 	def get_ref(self, field):
 		if field == 'splits':
@@ -78,6 +82,12 @@ class DecisionTree:
 		self.root		= self.node()
 		self.root[self.get_ref('indices')]	= self.np.arange(0, len(X)).tolist()
 		self.construct(self.root, depth, self.np.arange(0, 14).tolist())
+
+		# Removing unwanted stuff
+		del self.np
+		del self.os
+		del self.X
+		del self.y
 		
 	def get_bins(self, feature_no, n_bins):
 		"""
@@ -102,10 +112,6 @@ class DecisionTree:
 			bins.append([cur_low, cur_low + bin_split])
 			cur_low	= cur_low + bin_split
 			
-		# First bin will take values close to minimum 
-		# Last bin will take the largest values
-		bins[0][0]	= -100
-		bins[-1][1]	= int(1e07)
 		return bins
 			
 	def impurity_after_split(self, splits):
@@ -222,11 +228,11 @@ class DecisionTree:
 				best_each_imp_split	= cur_each_imp_split
 				best_split_feature_no	= given_features[f_no]
 		
-		return best_split, best_imp_after_split, best_each_imp_split, best_split_feature_no
+		return best_split, best_each_imp_split, best_split_feature_no
 		
 	def construct(self, some_node, depth, available_features):
 		"""
-			Function to construct a subtree from a given node
+			Function to construct a subtree from a given node (inplace)
 			Args:
 				some_node		= node of the tree
 				depth			= depth of the tree
@@ -247,20 +253,25 @@ class DecisionTree:
 				del some_node[self.get_ref('indices')]
 			else:	
 				new_split_attr		= self.get_best_split(some_node[self.get_ref('indices')], available_features)
-				some_node[self.get_ref('val')] 	= (new_split_attr[3], self.features_type[new_split_attr[3]])
+				f_no			= new_split_attr[2]
+				split_achieved		= new_split_attr[0]
+				imp_at_each_split	= new_split_attr[1]
+				del new_split_attr
+				
+				some_node[self.get_ref('val')] 	= (f_no, self.features_type[f_no])
 				some_node[self.get_ref('splits')]	= []
 
 				del some_node[self.get_ref('indices')]
 
-				for i in xrange(0, len(new_split_attr[0])):
-					linear_indices	= new_split_attr[0][i][0] + new_split_attr[0][i][1]
+				for i in xrange(0, len(split_achieved)):
+					linear_indices	= split_achieved[i][0] + split_achieved[i][1]
 					some_node[self.get_ref('splits')].append(self.node(indices=linear_indices))
 	
-				for i in xrange(0, len(new_split_attr[0])):
-					if round(new_split_attr[2][i], 5) == 0.0:
-						some_node[self.get_ref('splits')][i][self.get_ref('val')]	= 0 if len(new_split_attr[0][i][0]) != 0 else 1
+				for i in xrange(0, len(split_achieved)):
+					if round(imp_at_each_split[i], 5) == 0.0:
+						some_node[self.get_ref('splits')][i][self.get_ref('val')]	= 0 if len(split_achieved[i][0]) != 0 else 1
 					else:
-						self.construct(some_node[self.get_ref('splits')][i], depth-1, list(filter(lambda x: x != new_split_attr[3], available_features)))
+						self.construct(some_node[self.get_ref('splits')][i], depth-1, list(filter(lambda x: x != f_no, available_features)))
 						
 		else:
 			count_0	= count_1 = 0
@@ -284,8 +295,8 @@ class DecisionTree:
 			Returns:
 				X, Y 		 	= Inputs, and Outputs
 		"""
-		full_path	= self.os.path.join(root_folder, filename)
-		raw_data	= self.np.genfromtxt(full_path, delimiter=',', dtype=str)
+		full_path	= self.joiner(root_folder, filename)
+		raw_data	= self.file_get(full_path, delimiter=',', dtype=str)
 		
 		full_x	= []	
 		if train == True:
@@ -327,7 +338,7 @@ class DecisionTree:
 			Returns:
 				predictions	= predictions made for the input in the file
 		"""
-		path_to_file	= self.os.path.split(file_name)
+		path_to_file	= self.path_split(file_name)
 		x		= self.get_dataset(path_to_file[0], path_to_file[1], train=False)
 		predictions	= self.predict_impl(X=x)
 		return predictions
@@ -378,19 +389,8 @@ class DecisionTree:
 						index = i
 						break
 
+			# If the given instance is an entirely new path not seen by the decision tree, then guess
 			if index is None:
-				return 1 if self.np.random.randint(1, 10000) % 5 == 3 else 0
+				return 1 if self.randomizer(1, 10000) % 5 == 3 else 0
 			else:
 				return self.traverse(some_data, some_node[self.get_ref('splits')][index])
-			
-	def remove_splits(self, some_node):
-		"""
-			Function to eliminate leaf split attributes
-			Args:
-				some_node	= the current node you are at
-		"""
-		if some_node[self.get_ref('splits')] is not None:
-			for s in some_node[self.get_ref('splits')]:
-				self.remove_indices(s)
-		elif some_node[self.get_ref('splits')] is None:
-			some_node.pop('splits', None)

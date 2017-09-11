@@ -71,6 +71,14 @@ In Multiple Kernel Learning with fixed rules, it is required to weigh the kernel
 \hat{k} = 0.2*k_{LIN} + 0.3*k_{POL} + 0.5*k_{GAU}
 \end{equation*}
 
-The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best results for single kernel i.e., \(3\) and \(0.2\) respectively. I observed that the results with multiple kernel learning is not better than what was obtained using a single Gaussian, which can be attributed to the state of the dataset. The average validation accuracy achieved was \(79.61\%\). 
+The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best results for single kernel i.e., \(3\) and \(0.2\) respectively. I observed that the results with multiple kernel learning is not better than what was obtained using a single Gaussian, which can be attributed to the state of the dataset. The average validation accuracy achieved was \(79.61\%\). It also took considerable time to complete: an average of \(\approx 500\) seconds to complete each fold of cross-validation.
+\end{flushleft}
+
+\subsection*{Heuristic}
+\begin{flushleft}
+In Multiple Kernel Learning with a heuristic defined by the paper Moguerza et al., we try to obtain the weights for the kernels analytically. The method to calculate the weights involves costly matrix operations, and hence one can except this method to take longer. As expected, this method took an average of \(\approx 820\) seconds to complete training each fold. The average validation accuracy obtained was \(79.55\%\), which is not as good as individual kernels or the fixed rules method.
+\(\newline\)
+
+The average values of the \(\eta\)s over the 5 folds were: \(\eta_{\text{LIN}} = 0.3594\),  \(\eta_{\text{POL}} = 0.356\) and \(\eta_{\text{GAU}} = 0.2846\). This is surprising, since the Gaussian kernel is weighed less than the Polynomial kernel and the Linear kernel. Again, all these are dependent on the data.
 \end{flushleft}
 \end{document}
