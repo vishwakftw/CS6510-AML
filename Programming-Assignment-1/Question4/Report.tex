@@ -76,9 +76,9 @@ The parameters to \(k_{POL}\) and \(k_{GAU}\) remain the same as in the best res
 
 \subsection*{Heuristic}
 \begin{flushleft}
-In Multiple Kernel Learning with a heuristic defined by the paper Moguerza et al., we try to obtain the weights for the kernels analytically. The method to calculate the weights involves costly matrix operations, and hence one can except this method to take longer. As expected, this method took an average of \(\approx 820\) seconds to complete training each fold. The average validation accuracy obtained was \(79.55\%\), which is not as good as individual kernels or the fixed rules method.
+In Multiple Kernel Learning with a heuristic defined by the paper Cristianint et al., we try to obtain the weights for the kernels analytically. The method to calculate the weights involves costly matrix operations, and hence one can except this method to take longer. As expected, this method took an average of \(\approx 805\) seconds to complete training each fold. The average validation accuracy obtained was \(79.61\%\), which is not as good as individual kernels or the fixed rules method.
 \(\newline\)
 
-The average values of the \(\eta\)s over the 5 folds were: \(\eta_{\text{LIN}} = 0.3594\),  \(\eta_{\text{POL}} = 0.356\) and \(\eta_{\text{GAU}} = 0.2846\). This is surprising, since the Gaussian kernel is weighed less than the Polynomial kernel and the Linear kernel. Again, all these are dependent on the data.
+The average values of the \(\eta\)s over the 5 folds were: \(\eta_{\text{LIN}} = 0.3164\),  \(\eta_{\text{POL}} = 0.3189\) and \(\eta_{\text{GAU}} = 0.3647\). This suggests that our assumption of weighing the Gaussian is better, and also make sense because a Gaussian kernel could explain some complex hyperplanes.
 \end{flushleft}
 \end{document}

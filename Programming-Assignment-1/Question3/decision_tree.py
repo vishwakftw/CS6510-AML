@@ -36,12 +36,13 @@ class DecisionTree:
 		"""
 		return [splits, val, indices]
 				
-	def fit(self, X, y, depth=10, impurity_func='entropy'):
+	def fit(self, X, y, depth, impurity_func='entropy'):
 		"""
 			Function called to generate a univariate decision tree out of a given dataset
 			Args:
 				X		= 2D-list of shape [n_points, n_features]
 				Y		= 1D-list of shape [n_points]
+				depth		= Depth of the tree
 				impurity_func	= Impurity function. Defaults to 'entropy'. Other option is 'gini'.
 		"""
 		assert impurity_func in ['entropy', 'gini'], "Invalid Impurity Functions."

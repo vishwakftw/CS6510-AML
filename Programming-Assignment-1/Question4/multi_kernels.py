@@ -118,6 +118,8 @@ class MultiKernelheuristic(object):
 			Returns:
 				3-tuple of etas
 		"""
+		Y	= 2*Y - 1	# this is binary class problem with classes 0 and 1 => y must be in {-1, 1}
+			
 		eta_linear	= self.A(g_matrices['linear'](X, X), Y)
 		eta_polynomial	= self.A(g_matrices['polynomial'](X, X, self.hyperparameters['polynomial']), Y)
 		eta_gaussian	= self.A(g_matrices['gaussian'](X, X, self.hyperparameters['gaussian']), Y)
