@@ -51,11 +51,7 @@ def linear_gram_matrix(X, Y):
 			Linear Gram Matrix of X and Y	: numpy.ndarray of shape (n_points_X, n_points_Y)
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
-	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= linear_kernel(x, y)
-			
+	gram_matrix	= np.inner(X, Y)			
 	return gram_matrix
 	
 def polynomial_gram_matrix(X, Y, q):
@@ -69,11 +65,7 @@ def polynomial_gram_matrix(X, Y, q):
 			Polynomial Gram Matrix of X and Y	: numpy.ndarray of shape (n_points_X, n_points_Y)
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform dot product on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
-	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= polynomial_kernel(x, y, q)
-			
+	gram_matrix	= (np.inner(X, Y) + 1)**q
 	return gram_matrix
 				
 def gaussian_gram_matrix(X, Y, sigma):
@@ -87,9 +79,5 @@ def gaussian_gram_matrix(X, Y, sigma):
 			Gaussian Gram Matrix of X and Y	: numpy.ndarray of shape (n_points_X, n_points_Y)
 	"""
 	assert X.shape[1] == Y.shape[1], "Cannot perform element-wise subtraction on vectors of dimensions {0} and {1}".format(X.shape[1], Y.shape[1])
-	gram_matrix	= np.empty(shape=(X.shape[0], Y.shape[0]))
-	for i, x in enumerate(X):
-		for j, y in enumerate(Y):
-			gram_matrix[i, j]	= gaussian_kernel(x, y, sigma)
-			
+	gram_matrix	= np.exp(-np.inner(X - Y, X - Y)/sigma**2)
 	return gram_matrix
