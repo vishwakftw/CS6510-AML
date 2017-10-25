@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{graphicx}
+
+\title{Solutions to Assignment 2 : CS6510 - Applied Machine Learning}
+\author{Vishwak S\\
+\texttt{CS15BTECH11043}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Question 3}
+\subsection*{Part a}
+\begin{flushleft}
+Below is the neural network that achieves the desired output i.e., the \texttt{XOR} function. 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\linewidth]{./images/3a.png}
+\end{figure}
+Activations are present in both the hidden and output layers.
+\end{flushleft}
+
+\subsection*{Part b}
+\begin{flushleft}
+Below is the neural network that achieves the desired output i.e., the \texttt{XOR} function.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\linewidth]{./images/3b.png}
+\end{figure}
+Activations are present in both the hidden and output layers.
+
+For both Part a and Part b, there is a supporting script that will help you verify if the answers are correct or not. This is the file \texttt{checker.py}.
+\end{flushleft}
+
+\subsection*{Part c}
+\subsubsection*{Part i}
+Note that \(\sigma(z) = \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} = \frac{1 - e^{-2z}}{1 + e^{-2z}} = 2\times\text{sigmoid}(2x) - 1\). Using this fact we get:
+\begin{gather}
+\sigma'(z) = 2\times \text{sigmoid}'(x) = 2\times 2\times \text{sigmoid}(2x)\times(1 - \text{sigmoid}(2x)) = 2\times(\tanh(z) + 1)\left(1 - \frac{\tanh(z) + 1}{2}\right) \\
+\sigma'(z) = (1 - \tanh(z))(1 + \tanh(z)) = \boxed{(1 - \sigma(z))(1 + \sigma(z))}
+\end{gather}
+\subsubsection*{Part ii}
+\end{document}
