@@ -13,6 +13,24 @@
 \begin{document}
 \maketitle
 
+\section*{Question 2}
+\subsection*{Part a}
+The dendrogram is below, circles represent clusters.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{./images/2a.png}
+\end{figure}
+
+\subsection*{Part b}
+The dendrogram is below, circles represent clusters.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{./images/2b.png}
+\end{figure}
+
+\subsection*{Part c}
+Changing the lowest distance i.e., \(d(x1, x2) = 0.12 \rightarrow 0.09\) and the highest distance i.e., \(d(x3, x6) = 0.93 \rightarrow 0.96\) will not affect the answers.
+
 \section*{Question 3}
 \subsection*{Part a}
 \begin{flushleft}
@@ -44,4 +62,19 @@ Note that \(\sigma(z) = \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} = \frac{1 -
 \sigma'(z) = (1 - \tanh(z))(1 + \tanh(z)) = \boxed{(1 - \sigma(z))(1 + \sigma(z))}
 \end{gather}
 \subsubsection*{Part ii}
+\begin{flushleft}
+Note that node after the softmax applied for a layer is as follows, considering \(K\) nodes:
+\begin{gather}
+p_{i} = \frac{e^{z_{i}}}{e^{z_{i}} + N} \\
+\frac{\partial p_{i}}{\partial z_{j}} = \begin{cases} \frac{Ne^{z_{i}}}{(e^{z_{i}} + N)^2} = (1 - p_{i})(p_{i}) & \text{ if i = j } \\ -\frac{e^{z_{i}}e^{z_{j}}}{(e^{z_{i}} + N)^2} = -p_{i}p_{j} & \text{ otherwise } \end{cases}
+\end{gather}
+where N is the rest of the normalization factor (written for convenience).
+
+Using these two equations:
+\begin{equation}
+\frac{\partial L}{\partial z_{j}} = -\displaystyle \sum_{i=1}^{K} \frac{y_{i}}{p_{i}} \frac{\partial p_{i}}{\partial z_{j}} = -y_{i}(1 - p_{i}) + \sum_{i=1 , i \neq j}^{K} p_{j}y_{i} = -y_{i} + \sum_{i=1}^{K} p_{j}y_{i} = -y_{i} + p_{j}\sum_{i=1}^{K}y_{i} = \boxed{p_{j} - y_{i}}
+\end{equation}
+
+In the third equality, \(y_{i}p_{i} = y_{i}p_{j}\) if \(j = i\). This term is pushed inside the summation, for the rest of the equation.
+\end{flushleft}
 \end{document}
