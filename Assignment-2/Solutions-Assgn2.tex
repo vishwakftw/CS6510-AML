@@ -66,22 +66,25 @@ Below is the update equation for gradient ascent with learning rate \(\eta\):
 \subsection*{Part d}
 Yes, an appropriate choice of \(\lambda\) can result in the \(-L(W)\) being strongly convex, consequently \(L(W)\) will become strongly concave and we will be able to reach a global maximum.
 \subsection*{Part e}
-% TODO: Check internet
-
-\section*{Question 2}
-% TODO: Change both of the answers
-\subsection*{Part a}
-The dendrogram is below, circles represent clusters.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.3\linewidth]{./images/2a.png}
+\includegraphics[width=0.27\linewidth]{./images/1e.png}
 \end{figure}
 
-\subsection*{Part b}
-The dendrogram is below, circles represent clusters.
+\section*{Question 2}
+The dendrograms are below, circles represent clusters.
 \begin{figure}[H]
+\begin{minipage}{0.48\linewidth}
 \centering
-\includegraphics[width=0.3\linewidth]{./images/2b.png}
+\includegraphics[width=0.75\textwidth]{./images/2a.png}
+\caption{Part a}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.75\textwidth]{./images/2b.png}
+\caption{Part b}
+\end{minipage}
 \end{figure}
 
 \subsection*{Part c}
@@ -128,28 +131,21 @@ J' = -\frac{1}{2}\sum_{n=1}^{N} \sum_{k=1}^{K} p(z_{k} = 1 | \xbold_{n}) \ln(\ma
 \end{flushleft}
 \section*{Question 3}
 
-% TODO: Change the answer of Part a
-\subsection*{Part a}
-\begin{flushleft}
-Below is the neural network that achieves the desired output i.e., the \texttt{XOR} function. 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.4\linewidth]{./images/3a.png}
-\end{figure}
-Activations are present in both the hidden and output layers.
-\end{flushleft}
+Below are the neural networks that achieves the desired output i.e., the \texttt{XOR} function. Activations are present in both the hidden and output layers. For both Part a and Part b, there is a supporting script that will help you verify if the answers are correct or not. This is the file \texttt{checker.py}.
 
-\subsection*{Part b}
-\begin{flushleft}
-Below is the neural network that achieves the desired output i.e., the \texttt{XOR} function.
 \begin{figure}[H]
+\begin{minipage}{0.48\linewidth}
 \centering
-\includegraphics[width=0.4\linewidth]{./images/3b.png}
+\includegraphics[width=0.9\textwidth]{./images/3a.png}
+\caption{Part a - with 4 hidden nodes, and each hidden encodes for one output}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\textwidth]{./images/3b.png}
+\caption{Part b - with 2 hidden nodes}
+\end{minipage}
 \end{figure}
-Activations are present in both the hidden and output layers.
-
-For both Part a and Part b, there is a supporting script that will help you verify if the answers are correct or not. This is the file \texttt{checker.py}.
-\end{flushleft}
 
 \subsection*{Part c}
 \subsubsection*{Part i}
@@ -188,7 +184,7 @@ J(\beta_{1}, \beta_{2}) = \tr(J(\beta_{1}, \beta_{2})) = \tr(Y^{T}WY - \beta^{T}
 \end{multline}
 
 % add link in the footnote below
-The above is a ``trick" used in Andrew Ng's CS229 at Stanford. Using some properties of traces\footnote{CS229-Stanford-Lecture-Notes}:
+The above is a ``trick" used in Andrew Ng's CS229 at Stanford. Using some properties of traces\footnote{\href{http://cs229.stanford.edu/notes/cs229-notes1.pdf}{CS229-Stanford-Lecture-Notes}}:
 \begin{itemize}
 \item \(\tr(ABC) = \tr(BCA) = \tr(CAB)\)
 \item \(\nabla_{A} \tr(AB) = \nabla_{A} \tr(B^TA^T) = B^{T}\)
