@@ -1,9 +1,14 @@
 \documentclass{article}
-\usepackage[margin=0.75in]{geometry}
+\usepackage[margin=0.8in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{bookmark}
+\newcommand{\tr}{\text{tr}}
+\newcommand{\xbold}{\mathbf{x}}
+\newcommand{\wbold}{\mathbf{w}}
+\newcommand{\ind}{\mathbb{I}}
 
 \title{Solutions to Assignment 2 : CS6510 - Applied Machine Learning}
 \author{Vishwak S\\
@@ -13,7 +18,58 @@
 \begin{document}
 \maketitle
 
+\section*{Question 1}
+\subsection*{Part a}
+\begin{flushleft}
+In the expression for probabilities:
+\begin{equation}
+P(Y = K | X = \xbold) = \frac{1}{1 + \displaystyle \sum_{t=1}^{K-1} \exp(\wbold_{t}^{T}\xbold)} = \frac{\exp(\wbold_{K}^{T}\xbold)}{\displaystyle \sum_{t=1}^{K} \exp(\wbold_{t}^{T}\xbold)} \text{ with } \wbold_{K} = \mathbf{0}
+\end{equation}
+The above change results in a better looking and easy solution.
+
+Denote \(W = \{\wbold_{1}, \wbold_{2}, \ldots, \wbold_{K}\}\). Hence writing the likelihood \(+\) L2-regularization, the objective becomes:
+\begin{equation}
+L'(W) = \displaystyle \prod_{j=1}^{D}P(Y = y_{j} | X = \xbold_{j} ; W) - \frac{\lambda}{2}\sum_{t=1}^{K}||\wbold_{t}||^{2}
+\end{equation}
+
+Hence the log-likelihood becomes:
+\begin{equation}
+L(W) = \displaystyle \sum_{j=1}^{D} \ln(P(Y = y_{j} | X = \xbold_{j} ; W) - \frac{\lambda}{2}\sum_{t=1}^{K}||\wbold_{t}||^{2}
+\end{equation}
+
+Note that for \(Y = y_{j}\), only the weight vector \(\wbold_{y_{j}}\) will be utilized. Hence \(P(Y = y_{j} | X = \xbold_{j}) = \displaystyle \frac{\exp(\wbold_{y_{j}}^{T}\xbold_{j})}{\displaystyle \sum_{t=1}^{K} \exp(\wbold_{t}^{T}\xbold_{j})}\). Using this, we get \(L\) to be:
+\begin{equation}
+L(W) = \displaystyle \sum_{j=1}^{D} \wbold_{y_{j}}^{T}\xbold_{j} - \ln\left(\sum_{t=1}^{K}\exp(\wbold_{t}^{T}\xbold_{j})\right) - \frac{\lambda}{2}\sum_{t=1}^{K} ||\wbold_{t}||^{2}
+\end{equation}
+
+The negative sign in the regularizer is because of the maximizing objective, and minimizing the regularization term is the same as maximizing the negative of it.
+\end{flushleft}
+
+\subsection*{Part b}
+\begin{flushleft}
+We need to find \(\nabla_{\wbold_{i}} L(W)\).
+\begin{gather}
+\nabla_{\wbold_{i}} L(W) = \sum_{j=1}^{D} \left[\left(\ind_{y_{j} = i \neq K}\right) \xbold_{j} - \frac{1}{\displaystyle \sum_{t=1}^{K}\exp(\wbold_{t}^{T}\xbold_{j})} \exp(\wbold_{i}^{T}\xbold_{j}) \left(\ind_{i \neq K}\right) \xbold_{j}\right] - \lambda \wbold_{i} \left(\ind_{i \neq K}\right) \\
+\nabla_{\wbold_{i}} L(W) = \ind_{i \neq K} \left(\sum_{j=1}^{D} \left[ \left(\ind_{y_{j} = i}\right) \xbold_{j} - \frac{1}{\displaystyle \sum_{t=1}^{K}\exp(\wbold_{t}^{T}\xbold_{j})} \exp(\wbold_{i}^{T}\xbold_{j}) \xbold_{j}\right] - \lambda \wbold_{i} \right)
+\end{gather}
+
+Here \(\ind\) denotes the indicator function. The use of the indicator function \(\ind_{i \neq K}\) is that, the actual objective function is independent of \(\wbold_{K}\). Hence the gradient of \(L(W)\) w.r.t. \(\wbold_{K}\) will always be \(\mathbf{0}\), and this ensures that. The use of \(\ind_{y_{j} = i}\) comes from the utility of \(w_{i}\) in the expression for \(P(y = y_{j} | X = \xbold_{j})\), where we mentioned that \(w_{y_{j}}\) is only used.
+\end{flushleft}
+
+\subsection*{Part c}
+Below is the update equation for gradient ascent with learning rate \(\eta\):
+\begin{gather}
+\wbold_{k} := \wbold_{k} + \eta \nabla_{\wbold_{k} = \mathbf{0}}L(W = \mathbf{0}) \\
+\wbold_{k} := \mathbf{0} + \eta \left[\ind_{k \neq K} \displaystyle \sum_{j=1}^{D} \left(\ind_{y_{j} = k}\right)\xbold_{j} - \frac{\xbold_{j}}{K}\right] = \eta \ind_{k \neq K} \displaystyle \sum_{j=1}^{D} \left(\left(\ind_{y_{j} = k}\right)\xbold_{j} - \frac{\xbold_{j}}{K}\right)
+\end{gather}
+
+\subsection*{Part d}
+Yes, an appropriate choice of \(\lambda\) can result in the \(-L(W)\) being strongly convex, consequently \(L(W)\) will become strongly concave and we will be able to reach a global maximum.
+\subsection*{Part e}
+% TODO: Check internet
+
 \section*{Question 2}
+% TODO: Change both of the answers
 \subsection*{Part a}
 The dendrogram is below, circles represent clusters.
 \begin{figure}[H]
@@ -29,9 +85,50 @@ The dendrogram is below, circles represent clusters.
 \end{figure}
 
 \subsection*{Part c}
-Changing the lowest distance i.e., \(d(x1, x2) = 0.12 \rightarrow 0.09\) and the highest distance i.e., \(d(x3, x6) = 0.93 \rightarrow 0.96\) will not affect the answers.
+Changing the lowest distance i.e., \(d(x_1, x_2) = 0.12 \rightarrow 0.09\) and the highest distance i.e., \(d(x_3, x_6) = 0.93 \rightarrow 0.96\) will not affect the answers.
 
+\subsection*{Part d}
+\begin{flushleft}
+Assume spherical covariances i.e., the covariance matrix of the K mixtures is \(\Sigma_{k} = \Sigma = \alpha I \hspace{4mm} \forall k \in \{1, \ldots, K\}\). Using Bayes' theorem:
+\begin{equation}
+p(z_{k} = 1 | \xbold) = \frac{p(z_{k} = 1)p(\xbold | z_{k} = 1)}{\displaystyle \sum_{j=1}^{K} p(z_{j} = 1)p(\mathbf{x} | z_{j} = 1)} = \frac{\phi_{k}\mathcal{N}(\xbold | \mu_{k}, \Sigma)}{\displaystyle \sum_{j=1}^{K} \phi_{j}\mathcal{N}(\mathbf{x} | \mu_{j}, \Sigma)}
+\end{equation}
+
+where \(\mathcal{N}(\mathbf{x} | \mu_{i}, \Sigma) = \frac{1}{\sqrt{2\pi\alpha}}\exp\left(-\frac{||\xbold - \mu_{i}||^{2}}{2\alpha}\right) \)
+
+Note that for the \(n^{th}\) datapoint \(\xbold_{n}\), the probability for being assigned to the \(k^{th}\) cluster in GMM, is given by: 
+\begin{equation}
+\label{posterior}
+p(z_{k} = 1 | \xbold_{n}) = \frac{\phi_{k}\exp\left(-\frac{||\xbold_{n} - \mu_{k}||^{2}}{2\alpha}\right)}{\displaystyle \sum_{j=1}^{K} \phi_{j}\exp\left(-\frac{||\xbold_{n} - \mu_{j}||^{2}}{2\alpha}\right)}
+\end{equation}
+
+As \(\alpha\) tends to \(0\) in the \ref{posterior}, the terms in the summation in the denominator will go to 0 except for that term whose \(||\xbold_{n} - \mu_{j}||\) is smallest. Hence for such \(j\)'s, the value of \(p(z_{j} = 1 | \xbold_{n})\) will be 1, since the other terms in the denominator will have already gone to \(0\). This is a \(0-1\) probability setting of a datapoint belonging to a particular cluster and also the assignment of a datapoint to its closest mean.
+
+Note that in the GMM, the maximization step (with update), updates the mean as:
+\begin{equation}
+\mu_{k} = \frac{1}{\displaystyle \sum_{n=1}^{N}p(z_{k} = 1 | \xbold_{n})} \displaystyle \sum_{n=1}^{N}p(z_{k} = 1 | \xbold_{n})\xbold_{n}
+\end{equation}
+
+Since the values of \(p(z_{k} = 1 | \xbold_{n})\) are either \(0\) or \(1\), the update step becomes: 
+\begin{equation}
+\mu_{k} = \frac{\displaystyle \sum_{n=1}^{N} \xbold_{n} \ind_{p(z_{k} = 1 | \xbold_{n}) = 1}}{\displaystyle \sum_{n=1}^{N} \ind_{p(z_{k} = 1 | \xbold_{n}) = 1}}
+\end{equation} which is same update as K-Means.
+
+From an objective function perspective, the objective function for K-Means is:
+\begin{equation}
+J = \sum_{n=1}^{N} \sum_{k=1}^{K} \ind_{\xbold_{n} \rightarrow k} ||\xbold_{n} - \mu_{k}||^{2}
+\end{equation}
+
+Here \(\ind_{\xbold_{n} \rightarrow k}\) denotes the event of \(\xbold_{n}\) being assigned to cluster \(k\). Similarly, the log likehihood for all training points in GMM for the limiting case (described above) is given by:
+\begin{equation}
+J' = -\frac{1}{2}\sum_{n=1}^{N} \sum_{k=1}^{K} p(z_{k} = 1 | \xbold_{n}) \ln(\mathcal{N}(\xbold_{n}|\mu_{k}, \Sigma)) = -\frac{1}{2}\sum_{n=1}^{N} \sum_{k=1}^{K} p(z_{k} = 1 | \xbold_{n}) ||\xbold_{n} - \mu_{k}||^{2} + C
+\end{equation}
+
+\(C\) is a constant term. For GMM, \(J'\) has to be maximized, and the \(J\) has to be minimized for K-Means. Note that since \(p(z_{k} = 1 | \xbold_{n})\) takes values \(0\) or \(1\), this is the same as \(\ind_{\xbold_{n} \rightarrow k}\). Also due to the negative sign in \(J'\), the maximization of \(J'\) is the same as minimization \(-J'\) which is the same as \(J\), excluding the constant \(C\).
+\end{flushleft}
 \section*{Question 3}
+
+% TODO: Change the answer of Part a
 \subsection*{Part a}
 \begin{flushleft}
 Below is the neural network that achieves the desired output i.e., the \texttt{XOR} function. 
@@ -56,9 +153,9 @@ For both Part a and Part b, there is a supporting script that will help you veri
 
 \subsection*{Part c}
 \subsubsection*{Part i}
-Note that \(\sigma(z) = \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} = \frac{1 - e^{-2z}}{1 + e^{-2z}} = 2\times\text{sigmoid}(2x) - 1\). Using this fact we get:
+Note that \(\sigma(z) = \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} = \frac{1 - e^{-2z}}{1 + e^{-2z}} = 2\times\text{sigmoid}(2z) - 1\). Using this fact we get:
 \begin{gather}
-\sigma'(z) = 2\times \text{sigmoid}'(x) = 2\times 2\times \text{sigmoid}(2x)\times(1 - \text{sigmoid}(2x)) = 2\times(\tanh(z) + 1)\left(1 - \frac{\tanh(z) + 1}{2}\right) \\
+\sigma'(z) = 2\times \text{sigmoid}'(2z) = 2\times 2\times \text{sigmoid}(2z)\times(1 - \text{sigmoid}(2z)) = 2\times(\tanh(z) + 1)\left(1 - \frac{\tanh(z) + 1}{2}\right) \\
 \sigma'(z) = (1 - \tanh(z))(1 + \tanh(z)) = \boxed{(1 - \sigma(z))(1 + \sigma(z))}
 \end{gather}
 \subsubsection*{Part ii}
@@ -72,9 +169,52 @@ where N is the rest of the normalization factor (written for convenience).
 
 Using these two equations:
 \begin{equation}
-\frac{\partial L}{\partial z_{j}} = -\displaystyle \sum_{i=1}^{K} \frac{y_{i}}{p_{i}} \frac{\partial p_{i}}{\partial z_{j}} = -y_{i}(1 - p_{i}) + \sum_{i=1 , i \neq j}^{K} p_{j}y_{i} = -y_{i} + \sum_{i=1}^{K} p_{j}y_{i} = -y_{i} + p_{j}\sum_{i=1}^{K}y_{i} = \boxed{p_{j} - y_{i}}
+\frac{\partial L}{\partial z_{j}} = -\displaystyle \sum_{i=1}^{K} \frac{y_{i}}{p_{i}} \frac{\partial p_{i}}{\partial z_{j}} = -y_{j}(1 - p_{j}) + \sum_{i=1 , i \neq j}^{K} p_{j}y_{i} = -y_{j} + \sum_{i=1}^{K} p_{j}y_{i} = -y_{j} + p_{j}\sum_{i=1}^{K}y_{i} = \boxed{p_{j} - y_{j}}
 \end{equation}
 
 In the third equality, \(y_{i}p_{i} = y_{i}p_{j}\) if \(j = i\). This term is pushed inside the summation, for the rest of the equation.
 \end{flushleft}
+
+\section*{Question 4}
+\subsection*{Part a}
+\begin{flushleft}
+\begin{equation}
+J(\beta_{1}, \beta_{2}) = (Y - A\beta)^{T}W(Y - A\beta) = (Y^{T} - \beta^{T}A^{T})W(Y - A\beta) = Y^{T}WY - \beta^{T}A^{T}WY - Y^{T}WA\beta + \beta^{T}A^{T}WA\beta
+\end{equation}
+
+Using the ``trick" shown in Andrew Ng's CS229 at Stanford below, we get:
+\begin{multline}
+J(\beta_{1}, \beta_{2}) = \tr(J(\beta_{1}, \beta_{2})) = \tr(Y^{T}WY - \beta^{T}A^{T}WY - Y^{T}WA\beta + \beta^{T}AWA\beta) \\ = \tr(Y^{T}WY) - \tr(\beta^{T}A^{T}WY) - \tr(Y^{T}WA\beta) + \tr(\beta^{T}A^{T}WA\beta)
+\end{multline}
+
+% add link in the footnote below
+The above is a ``trick" used in Andrew Ng's CS229 at Stanford. Using some properties of traces\footnote{CS229-Stanford-Lecture-Notes}:
+\begin{itemize}
+\item \(\tr(ABC) = \tr(BCA) = \tr(CAB)\)
+\item \(\nabla_{A} \tr(AB) = \nabla_{A} \tr(B^TA^T) = B^{T}\)
+\item \(\nabla_{A} \tr(ABA^{T}C) = CAB + C^{T}AB^{T}\)
+\end{itemize}
+
+We can hence write: 
+\begin{itemize}
+\item \(\tr(\beta^{T}A^{T}WY) = \tr(A^{T}WY\beta^{T}) \implies \nabla_{\beta} \tr(\beta^{T}A^{T}WY) = A^{T}WY\)
+\item \(\tr(Y^{T}WA\beta) = \tr(\beta Y^{T}WA) \implies \nabla_{\beta} \tr(Y^{T}WA\beta) = A^{T}W^{T}Y = A^{T}WY\) (Since \(W\) is symmetric)
+\item \(\tr(\beta^{T}A^{T}WA\beta) = \tr(\beta I \beta^{T}A^{T}WA) \implies \nabla_{\beta} \tr(\beta^{T}A^{T}WA\beta) = A^{T}WA\beta + A^{T}W^{T}A\beta = 2A^{T}WA\beta\) (Since \(W\) is symmetric)
+\end{itemize}
+
+Computing the gradient of \(J\) w.r.t. \(\beta\) and setting to \(\mathbf{0}\), we get:
+\begin{gather}
+\nabla_{\beta} J(\beta_{1}, \beta_{2}) = -2A^{T}WY + 2A^{T}WA\beta = \mathbf{0} \implies (A^{T}WA)\beta = A^{T}WY \\
+\hat{\beta} = \boxed{(A^{T}WA)^{-1}(A^{T}WY)}
+\end{gather}
+\end{flushleft}
+
+\subsection*{Part b}
+The closed form solution in Part a will only exist if \(A^{T}WA\) is invertible. Since the inverse (if exists) is unique, this solution will be consequently unique as well. Otherwise there might exist multiple \(\hat{\beta}\)'s which satisfy the above equation.
+
+\subsection*{Part c}
+The update equation for gradient descent with learning rate = \(\eta\) is as follows:
+\begin{equation}
+\beta := \beta - \eta \nabla_{\beta}J(\beta_{1}, \beta_{2}) = (I - 2\eta A^{T}WA)\beta + 2\eta(A^{T}WY)
+\end{equation}
 \end{document}
