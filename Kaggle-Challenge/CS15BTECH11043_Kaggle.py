@@ -137,11 +137,11 @@ euribor3m_scaled = scaled_numeric[7]
 nm_employ_scaled = scaled_numeric[8]
 
 all_data_1 = np.hstack((age.reshape(-1, 1), contact_ohe, month_ohe, pdays_scaled.reshape(-1, 1), 
-                                campaign_scaled.reshape(-1, 1), poutcome_ohe, euribor3m_scaled.reshape(-1, 1), 
-                                nm_employ_scaled.reshape(-1, 1), job_ohe, default_ohe
-                               ))
-train_1 = all_data_2[:m_train]
-test_1 = all_data_2[m_train:]
+                        campaign_scaled.reshape(-1, 1), poutcome_ohe, euribor3m_scaled.reshape(-1, 1), 
+                        nm_employ_scaled.reshape(-1, 1), job_ohe, default_ohe
+                      ))
+train_1 = all_data_1[:m_train]
+test_1 = all_data_1[m_train:]
 
 gradbooster = GradientBoostingClassifier(min_samples_leaf=0.002, n_estimators=500, max_depth=5)
 gradbooster.fit(train_1, train_output)
@@ -150,7 +150,6 @@ sub_file = open('sub_file_1.csv', 'w')
 sub_file.write('Id,Class\n')
 for i in range(0, sub_1_pred.shape[0]):
     sub_file.write('{0},{1}\n'.format(i+1, sub_1_pred[i,1]))
-print(sub_1_pred.shape)
 sub_file.close()
 
 all_data_2 = np.hstack((age_scaled.reshape(-1, 1), job_ohe, marital_ohe, education_ohe, default_ohe, housing_ohe, loan_ohe, contact_ohe,
@@ -164,9 +163,8 @@ test_2 = all_data_2[m_train:]
 rnd_frst = RandomForestClassifier(n_estimators=500, min_samples_leaf=0.001, class_weight='balanced')
 rnd_frst.fit(train_2, train_output)
 sub_2_pred = rnd_frst.predict_proba(test_2)
-sub_file = open('sub_files_2.csv', 'w')
+sub_file = open('sub_file_2.csv', 'w')
 sub_file.write('Id,Class\n')
 for i in range(0, sub_2_pred.shape[0]):
     sub_file.write('{0},{1}\n'.format(i+1, sub_2_pred[i,1]))
-print(sub_2_pred.shape)
 sub_file.close()
