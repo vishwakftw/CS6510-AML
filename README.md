@@ -20,3 +20,13 @@ Coursework pertaining to CS6510 : Applied Machine Learning offered in Fall 2017
 + Clustering
 + Neural Networks
 + Regression Methods
+
+### Kaggle Challenge :
+
++ Random Forest and Gradient Boosting
++ Dataset used was a reduced version of [this bank marketing dataset](https://archive.ics.uci.edu/ml/datasets/bank+marketing).
+
+### Programming Assignment 2 :
+
++ Dimensionality Reduction techniques: PCA and t-SNE on the Iris dataset and synthetic Swiss Roll dataset
++ Regression Methods: Ridge Regression and LASSO
