@@ -4,7 +4,7 @@ class PCA(object):
     W = None
     def __init__(self, n_components):
         """
-            PCA object constructor
+            PCA object constructor for Principle Components Analysis
             Args:
                 n_components    : Int, number of principal components required
         """
